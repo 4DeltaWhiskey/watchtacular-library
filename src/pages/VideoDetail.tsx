@@ -1,5 +1,4 @@
-
-import { ChevronLeft, MessageSquare, ThumbsUp } from "lucide-react";
+import { ChevronLeft, MessageSquare, ThumbsUp, ThumbsDown, Heart, Star } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -61,11 +60,29 @@ const INITIAL_COMMENTS: Comment[] = [
   },
 ];
 
+type Reaction = {
+  type: 'like' | 'dislike' | 'heart' | 'star';
+  count: number;
+  active: boolean;
+};
+
+type VideoReactions = {
+  [key: string]: Reaction;
+};
+
+const INITIAL_REACTIONS: VideoReactions = {
+  like: { type: 'like', count: 1200, active: false },
+  dislike: { type: 'dislike', count: 50, active: false },
+  heart: { type: 'heart', count: 300, active: false },
+  star: { type: 'star', count: 150, active: false },
+};
+
 const VideoDetail = () => {
   const { id } = useParams();
   const video = VIDEOS[id as keyof typeof VIDEOS];
   const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
   const [newComment, setNewComment] = useState("");
+  const [reactions, setReactions] = useState<VideoReactions>(INITIAL_REACTIONS);
   const { toast } = useToast();
 
   if (!video) {
@@ -107,6 +124,24 @@ const VideoDetail = () => {
     });
   };
 
+  const handleReaction = (type: keyof typeof reactions) => {
+    setReactions(prev => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        count: prev[type].active 
+          ? prev[type].count - 1 
+          : prev[type].count + 1,
+        active: !prev[type].active,
+      }
+    }));
+
+    toast({
+      title: "Success",
+      description: `${type} ${reactions[type].active ? 'removed' : 'added'}!`,
+    });
+  };
+
   const handleLike = (commentId: number) => {
     setComments(comments.map(comment => 
       comment.id === commentId 
@@ -140,13 +175,49 @@ const VideoDetail = () => {
           <span>{video.views} views</span>
           <span>•</span>
           <span>{video.date}</span>
-          <span>•</span>
-          <span>{video.likes} likes</span>
         </div>
 
         <div className="flex items-center gap-3 py-4 border-y border-border">
           <div className="flex-1">
             <h3 className="font-semibold">{video.author}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={reactions.like.active ? "default" : "secondary"}
+              size="sm"
+              onClick={() => handleReaction('like')}
+              className="flex items-center gap-1"
+            >
+              <ThumbsUp className="w-4 h-4" />
+              <span>{reactions.like.count}</span>
+            </Button>
+            <Button
+              variant={reactions.dislike.active ? "default" : "secondary"}
+              size="sm"
+              onClick={() => handleReaction('dislike')}
+              className="flex items-center gap-1"
+            >
+              <ThumbsDown className="w-4 h-4" />
+              <span>{reactions.dislike.count}</span>
+            </Button>
+            <Button
+              variant={reactions.heart.active ? "default" : "secondary"}
+              size="sm"
+              onClick={() => handleReaction('heart')}
+              className="flex items-center gap-1"
+            >
+              <Heart className="w-4 h-4" />
+              <span>{reactions.heart.count}</span>
+            </Button>
+            <Button
+              variant={reactions.star.active ? "default" : "secondary"}
+              size="sm"
+              onClick={() => handleReaction('star')}
+              className="flex items-center gap-1"
+            >
+              <Star className="w-4 h-4" />
+              <span>{reactions.star.count}</span>
+            </Button>
           </div>
         </div>
 

@@ -28,10 +28,10 @@ const VideoDetail = () => {
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">
-            <FormattedMessage id="app.videoNotFound" />
+            <FormattedMessage id="app.videoNotFound" defaultMessage="Video not found" />
           </h1>
           <Link to="/" className="text-primary hover:underline">
-            <FormattedMessage id="app.returnHome" />
+            <FormattedMessage id="app.returnHome" defaultMessage="Return to home" />
           </Link>
         </div>
       </div>
@@ -60,7 +60,7 @@ const VideoDetail = () => {
   };
 
   const comments = INITIAL_COMMENTS.map(comment => ({
-    id: String(comment.id), // Convert number to string
+    id: String(comment.id),
     video_id: id || '',
     author: comment.author,
     content: comment.content,
@@ -75,7 +75,7 @@ const VideoDetail = () => {
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 group"
       >
         <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-        <FormattedMessage id="app.backToVideos" />
+        <FormattedMessage id="app.backToVideos" defaultMessage="Back to videos" />
       </Link>
 
       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
@@ -86,7 +86,9 @@ const VideoDetail = () => {
         <h1 className="text-3xl font-bold">{video.title}</h1>
         
         <div className="flex items-center gap-4 text-muted-foreground">
-          <span>{video.views} <FormattedMessage id="app.views" /></span>
+          <span>
+            {video.views} <FormattedMessage id="app.views" defaultMessage="views" />
+          </span>
           <span>•</span>
           <span>{video.date}</span>
         </div>

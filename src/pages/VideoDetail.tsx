@@ -40,7 +40,7 @@ const VideoDetail = () => {
   if (!video) {
     return (
       <div className="container mx-auto px-4 py-8 min-h-screen">
-        <div className="text-center">
+        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Video not found</h1>
           <Link to="/" className="text-primary hover:underline">
             Return to home
@@ -52,42 +52,44 @@ const VideoDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
-      <Link
-        to="/"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 group"
-      >
-        <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-        Back to videos
-      </Link>
+      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 group"
+        >
+          <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          Back to videos
+        </Link>
 
-      <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
-        <img
-          src={video.thumbnail}
-          alt={video.title}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{video.title}</h1>
-        
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <span>{video.views} views</span>
-          <span>•</span>
-          <span>{video.date}</span>
-          <span>•</span>
-          <span>{video.likes} likes</span>
+        <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
+          <img
+            src={video.thumbnail}
+            alt={video.title}
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        <div className="flex items-center gap-3 py-4 border-y border-border">
-          <div className="flex-1">
-            <h3 className="font-semibold">{video.author}</h3>
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold">{video.title}</h1>
+          
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <span>{video.views} views</span>
+            <span>•</span>
+            <span>{video.date}</span>
+            <span>•</span>
+            <span>{video.likes} likes</span>
           </div>
-        </div>
 
-        <p className="text-muted-foreground leading-relaxed">
-          {video.description}
-        </p>
+          <div className="flex items-center gap-3 py-4 border-y border-border">
+            <div className="flex-1">
+              <h3 className="font-semibold">{video.author}</h3>
+            </div>
+          </div>
+
+          <p className="text-muted-foreground leading-relaxed">
+            {video.description}
+          </p>
+        </div>
       </div>
     </div>
   );

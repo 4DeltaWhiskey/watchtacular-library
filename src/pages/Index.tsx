@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import CategoryFilter from "@/components/CategoryFilter";
 import FeaturedVideo from "@/components/FeaturedVideo";
@@ -77,18 +78,22 @@ const Index = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
-      <FeaturedVideo {...FEATURED_VIDEO} />
+      <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 mb-8">
+        <FeaturedVideo {...FEATURED_VIDEO} />
+      </div>
       
       <div className="mt-12">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Recent Streams</h2>
+          <h2 className="text-2xl font-bold text-foreground">Recent Streams</h2>
           <CategoryFilter
             categories={CATEGORIES}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
           />
         </div>
-        <VideoGrid videos={VIDEOS} category={activeCategory} />
+        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6">
+          <VideoGrid videos={VIDEOS} category={activeCategory} />
+        </div>
       </div>
     </div>
   );

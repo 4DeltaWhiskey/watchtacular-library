@@ -9,7 +9,144 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      comments: {
+        Row: {
+          author: string
+          content: string
+          created_at: string
+          id: string
+          likes: number
+          video_id: string
+        }
+        Insert: {
+          author: string
+          content: string
+          created_at?: string
+          id?: string
+          likes?: number
+          video_id: string
+        }
+        Update: {
+          author?: string
+          content?: string
+          created_at?: string
+          id?: string
+          likes?: number
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_translations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          language: string
+          title: string
+          updated_at: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language: string
+          title: string
+          updated_at?: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          title?: string
+          updated_at?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_translations_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          author: string
+          category_id: string | null
+          created_at: string
+          duration: string
+          id: string
+          likes: number
+          thumbnail: string
+          updated_at: string
+          video_url: string
+          views: number
+        }
+        Insert: {
+          author: string
+          category_id?: string | null
+          created_at?: string
+          duration: string
+          id?: string
+          likes?: number
+          thumbnail: string
+          updated_at?: string
+          video_url: string
+          views?: number
+        }
+        Update: {
+          author?: string
+          category_id?: string | null
+          created_at?: string
+          duration?: string
+          id?: string
+          likes?: number
+          thumbnail?: string
+          updated_at?: string
+          video_url?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

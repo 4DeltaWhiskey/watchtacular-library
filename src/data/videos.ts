@@ -1,4 +1,3 @@
-
 export const VIDEOS = {
   featured: {
     id: "featured",
@@ -15,7 +14,7 @@ export const VIDEOS = {
     likes: "1.2K",
   },
   1: {
-    id: 1,
+    id: "1",
     title: "Advanced TypeScript Patterns",
     description: "Learn advanced TypeScript patterns and best practices for large-scale applications. We'll cover generics, mapped types, conditional types, and more.",
     thumbnail: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80",
@@ -27,6 +26,45 @@ export const VIDEOS = {
     author: "TypeScript Pro",
     likes: "856",
   },
+  2: {
+    id: "2",
+    title: "Remote Work Best Practices",
+    description: "Essential tips and strategies for effective remote work collaboration.",
+    thumbnail: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80",
+    views: "8.5K",
+    duration: "45:20",
+    date: "3 days ago",
+    category: "Education",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    author: "WorkLife Balance",
+    likes: "723",
+  },
+  3: {
+    id: "3",
+    title: "Digital Workspace Setup Guide",
+    description: "Create the perfect digital workspace for maximum productivity.",
+    thumbnail: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&q=80",
+    views: "15K",
+    duration: "28:45",
+    date: "4 days ago",
+    category: "Tech",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    author: "TechSetups",
+    likes: "945",
+  },
+  4: {
+    id: "4",
+    title: "Future of Video Production",
+    description: "Exploring emerging trends in video production and streaming technology.",
+    thumbnail: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80",
+    views: "19K",
+    duration: "1:05:30",
+    date: "5 days ago",
+    category: "Tech",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    author: "FutureTech",
+    likes: "1.1K",
+  }
 };
 
 export const INITIAL_COMMENTS = [

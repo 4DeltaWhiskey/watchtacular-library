@@ -13,33 +13,60 @@ const Index = () => {
   const { language } = useLanguage();
 
   const { data: categories, isLoading: loadingCategories } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categories", language],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
+        .select(`
+          id,
+          name,
+          translations:category_translations!inner(
+            name
+          )
+        `)
+        .eq('translations.language', language)
         .order("name");
       
       if (error) throw error;
-      return ["All", ...(data?.map(cat => cat.name) || [])];
+      
+      const translatedCategories = data.map(cat => ({
+        id: cat.id,
+        name: cat.translations[0]?.name || cat.name
+      }));
+      
+      return ["All", ...translatedCategories.map(cat => cat.name)];
     }
   });
 
   const { data: videos, isLoading: loadingVideos } = useQuery({
-    queryKey: ["videos", language],
+    queryKey: ["videos", language, activeCategory],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("videos")
         .select(`
           *,
-          category:categories(name),
+          category:categories(
+            id,
+            name,
+            translations:category_translations!inner(
+              name
+            )
+          ),
           translation:video_translations!inner(
             title,
             description
           )
         `)
-        .eq("translation.language", language)
-        .order("created_at", { ascending: false });
+        .eq("translation.language", language);
+
+      if (activeCategory !== "All") {
+        query = query.eq(
+          "category.translations.name",
+          activeCategory
+        );
+      }
+      
+      const { data, error } = await query.order("created_at", { ascending: false });
       
       if (error) throw error;
       return data;
@@ -98,7 +125,7 @@ const Index = () => {
               views: video.views,
               duration: video.duration,
               date: new Date(video.created_at).toLocaleDateString(),
-              category: video.category?.name || "Uncategorized"
+              category: video.category?.translations[0]?.name || video.category?.name || "Uncategorized"
             }))}
             category={activeCategory}
           />

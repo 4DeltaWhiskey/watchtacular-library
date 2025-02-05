@@ -20,10 +20,10 @@ export const ThemeSwitcher = () => {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="fixed top-4 right-4"
+      className="fixed top-4 right-4 z-50 bg-background"
     >
       {theme === "light" ? (
         <Moon className="h-5 w-5" />

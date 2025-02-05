@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -67,4 +68,25 @@
   [dir="rtl"] .category-button {
     @apply mr-0 ml-2;
   }
+}
+
+/* Video Card Styles */
+.video-card {
+  @apply relative overflow-hidden transition-all duration-300 hover:scale-[1.02] bg-card text-card-foreground;
+}
+
+.video-duration {
+  @apply absolute bottom-2 right-2 bg-black/80 px-2 py-1 text-xs font-medium text-white rounded;
+}
+
+.category-button {
+  @apply px-4 py-2 rounded-full transition-all duration-200;
+}
+
+.category-button.active {
+  @apply bg-primary text-primary-foreground;
+}
+
+.category-button:not(.active) {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
 }

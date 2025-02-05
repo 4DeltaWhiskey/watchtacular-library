@@ -60,7 +60,7 @@ const VideoDetail = () => {
   };
 
   const comments = INITIAL_COMMENTS.map(comment => ({
-    id: comment.id,
+    id: String(comment.id), // Convert number to string
     video_id: id || '',
     author: comment.author,
     content: comment.content,

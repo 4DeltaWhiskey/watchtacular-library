@@ -27,23 +27,7 @@ const VideoDetail = () => {
   const intl = useIntl();
   const { language } = useLanguage();
 
-  const { data: videoTranslation } = useQuery({
-    queryKey: ["video-translation", id, language],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("video_translations")
-        .select("*")
-        .eq("video_id", id)
-        .eq("language", language)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!id
-  });
-
-  // Handle the "featured" route redirect
+  // Handle the "featured" route redirect first
   if (id === "featured") {
     return <Navigate to="/video/d290f1ee-6c54-4b01-90e6-d701748f0851" replace />;
   }
@@ -63,6 +47,23 @@ const VideoDetail = () => {
       </div>
     );
   }
+
+  // Only query translations after we've confirmed we have a valid video
+  const { data: videoTranslation } = useQuery({
+    queryKey: ["video-translation", id, language],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("video_translations")
+        .select("*")
+        .eq("video_id", id)
+        .eq("language", language)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id && id !== "featured"
+  });
 
   const handleReaction = (type: keyof VideoReactionsType) => {
     setReactions(prev => ({

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
+import VideoPlayer from "@/components/ui/video-player";
 import { VIDEOS, INITIAL_COMMENTS, INITIAL_REACTIONS } from "@/data/videos";
 import type { VideoReactions as VideoReactionsType } from "@/types/video";
 import { FormattedMessage, useIntl } from "react-intl";
@@ -62,12 +63,8 @@ const VideoDetail = () => {
         <FormattedMessage id="app.backToVideos" />
       </Link>
 
-      <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
-        <img
-          src={video.thumbnail}
-          alt={video.title}
-          className="w-full h-full object-cover"
-        />
+      <div className="rounded-lg overflow-hidden mb-6">
+        <VideoPlayer src={video.video || video.thumbnail} />
       </div>
 
       <div className="space-y-4">

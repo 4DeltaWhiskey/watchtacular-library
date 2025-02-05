@@ -23,7 +23,7 @@ export const ThemeSwitcher = () => {
       variant="outline"
       size="icon"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="fixed top-4 right-4 z-50 bg-background"
+      className="fixed top-4 right-20 z-50 bg-background"
     >
       {theme === "light" ? (
         <Moon className="h-5 w-5" />

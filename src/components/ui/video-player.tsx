@@ -1,9 +1,8 @@
-
 "use client";
 
 import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Volume2, Volume1, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, Volume1, VolumeX, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +47,7 @@ const CustomSlider = ({
 
 const VideoPlayer = ({ src }: { src: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
@@ -65,6 +65,14 @@ const VideoPlayer = ({ src }: { src: string }) => {
         videoRef.current.play();
       }
       setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
     }
   };
 
@@ -119,7 +127,8 @@ const VideoPlayer = ({ src }: { src: string }) => {
 
   return (
     <motion.div
-      className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden bg-[#11111198] shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm"
+      ref={containerRef}
+      className="relative w-full mx-auto rounded-xl overflow-hidden bg-[#11111198] shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -128,7 +137,7 @@ const VideoPlayer = ({ src }: { src: string }) => {
     >
       <video
         ref={videoRef}
-        className="w-full"
+        className="w-full h-full object-cover"
         onTimeUpdate={handleTimeUpdate}
         src={src}
         onClick={togglePlay}
@@ -137,7 +146,7 @@ const VideoPlayer = ({ src }: { src: string }) => {
       <AnimatePresence>
         {showControls && (
           <motion.div
-            className="absolute bottom-0 mx-auto max-w-xl left-0 right-0 p-4 m-2 bg-[#11111198] backdrop-blur-md rounded-2xl"
+            className="absolute bottom-0 w-full p-4 m-2 bg-[#11111198] backdrop-blur-md rounded-2xl"
             initial={{ y: 20, opacity: 0, filter: "blur(10px)" }}
             animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
             exit={{ y: 20, opacity: 0, filter: "blur(10px)" }}
@@ -224,6 +233,19 @@ const VideoPlayer = ({ src }: { src: string }) => {
                     </Button>
                   </motion.div>
                 ))}
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Button
+                    onClick={toggleFullscreen}
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-[#111111d1] hover:text-white"
+                  >
+                    <Maximize2 className="h-5 w-5" />
+                  </Button>
+                </motion.div>
               </div>
             </div>
           </motion.div>

@@ -1,8 +1,12 @@
 import VideoCard from "./VideoCard";
-import type { Video, VideoTranslation } from "@/types/video";
+import type { Video } from "@/types/video";
 
-interface GridVideo extends Pick<Video, 'id' | 'thumbnail' | 'duration' | 'views'> {
+interface GridVideo {
+  id: string;
   title: string;
+  thumbnail: string;
+  views: number;
+  duration: string;
   date: string;
   category: string;
 }

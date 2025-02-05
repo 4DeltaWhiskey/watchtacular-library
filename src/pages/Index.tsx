@@ -4,15 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import CategoryFilter from "@/components/CategoryFilter";
 import FeaturedVideo from "@/components/FeaturedVideo";
 import VideoGrid from "@/components/VideoGrid";
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Video, VideoTranslation, Category } from "@/types/video";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const { language } = useLanguage();
-  const intl = useIntl();
 
   const { data: categories, isLoading: loadingCategories } = useQuery({
     queryKey: ["categories"],
@@ -70,8 +68,8 @@ const Index = () => {
     <div className="container mx-auto px-4 py-8 min-h-screen">
       {featuredVideo && (
         <FeaturedVideo
-          title={featuredVideo.translation.title}
-          description={featuredVideo.translation.description || ""}
+          title={featuredVideo.translation[0]?.title || ""}
+          description={featuredVideo.translation[0]?.description || ""}
           thumbnail={featuredVideo.thumbnail}
           views={featuredVideo.views.toString()}
           duration={featuredVideo.duration}
@@ -95,9 +93,9 @@ const Index = () => {
           <VideoGrid
             videos={videos.map(video => ({
               id: video.id,
-              title: video.translation.title,
+              title: video.translation[0]?.title || "",
               thumbnail: video.thumbnail,
-              views: video.views.toString(),
+              views: video.views,
               duration: video.duration,
               date: new Date(video.created_at).toLocaleDateString(),
               category: video.category?.name || "Uncategorized"

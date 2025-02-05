@@ -21,34 +21,12 @@ const INITIAL_REACTIONS: VideoReactionsType = {
 
 const VideoDetail = () => {
   const { id } = useParams();
-  const video = VIDEOS[id as keyof typeof VIDEOS];
   const [reactions, setReactions] = useState<VideoReactionsType>(INITIAL_REACTIONS);
   const { toast } = useToast();
   const intl = useIntl();
   const { language } = useLanguage();
 
-  // Handle the "featured" route redirect first
-  if (id === "featured") {
-    return <Navigate to="/video/d290f1ee-6c54-4b01-90e6-d701748f0851" replace />;
-  }
-
-  // Handle non-existent video
-  if (!video) {
-    return (
-      <div className="container mx-auto px-4 py-8 min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">
-            <FormattedMessage id="app.videoNotFound" />
-          </h1>
-          <Link to="/" className="text-primary hover:underline">
-            <FormattedMessage id="app.returnHome" />
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Only query translations after we've confirmed we have a valid video
+  // Always call useQuery, but control its execution with enabled flag
   const { data: videoTranslation } = useQuery({
     queryKey: ["video-translation", id, language],
     queryFn: async () => {
@@ -64,6 +42,28 @@ const VideoDetail = () => {
     },
     enabled: !!id && id !== "featured"
   });
+
+  // Handle redirects and error states after hooks
+  if (id === "featured") {
+    return <Navigate to="/video/d290f1ee-6c54-4b01-90e6-d701748f0851" replace />;
+  }
+
+  const video = VIDEOS[id as keyof typeof VIDEOS];
+
+  if (!video) {
+    return (
+      <div className="container mx-auto px-4 py-8 min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">
+            <FormattedMessage id="app.videoNotFound" />
+          </h1>
+          <Link to="/" className="text-primary hover:underline">
+            <FormattedMessage id="app.returnHome" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleReaction = (type: keyof VideoReactionsType) => {
     setReactions(prev => ({

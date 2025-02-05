@@ -2,14 +2,14 @@
 import { ThumbsUp, ThumbsDown, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { VideoReactions } from "@/types/video";
+import type { VideoReactions as VideoReactionsType } from "@/types/video";
 
-interface VideoReactionsProps {
-  reactions: VideoReactions;
-  onReaction: (type: keyof VideoReactions) => void;
+interface VideoReactionProps {
+  reactions: VideoReactionsType;
+  onReaction: (type: keyof VideoReactionsType) => void;
 }
 
-export const VideoReactions = ({ reactions, onReaction }: VideoReactionsProps) => {
+export const VideoReactions = ({ reactions, onReaction }: VideoReactionProps) => {
   return (
     <div className="flex items-center gap-2">
       <Button

@@ -47,8 +47,8 @@ export const INITIAL_COMMENTS = [
 ];
 
 export const INITIAL_REACTIONS = {
-  like: { type: 'like', count: 1200, active: false },
-  dislike: { type: 'dislike', count: 50, active: false },
-  heart: { type: 'heart', count: 300, active: false },
-  star: { type: 'star', count: 150, active: false },
+  like: { type: 'like' as const, count: 1200, active: false },
+  dislike: { type: 'dislike' as const, count: 50, active: false },
+  heart: { type: 'heart' as const, count: 300, active: false },
+  star: { type: 'star' as const, count: 150, active: false },
 };

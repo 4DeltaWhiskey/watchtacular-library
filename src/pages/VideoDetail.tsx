@@ -8,6 +8,7 @@ import { VideoReactions } from "@/components/VideoReactions";
 import { VIDEOS, INITIAL_COMMENTS, INITIAL_REACTIONS } from "@/data/videos";
 import type { VideoReactions as VideoReactionsType } from "@/types/video";
 import { FormattedMessage, useIntl } from "react-intl";
+import VideoPlayer from "@/components/ui/video-player";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -63,11 +64,7 @@ const VideoDetail = () => {
       </Link>
 
       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
-        <img
-          src={video.thumbnail}
-          alt={video.title}
-          className="w-full h-full object-cover"
-        />
+        <VideoPlayer src={video.videoUrl} />
       </div>
 
       <div className="space-y-4">

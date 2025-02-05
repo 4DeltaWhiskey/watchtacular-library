@@ -1,14 +1,20 @@
-
 import { ChevronLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
-import { VIDEOS, INITIAL_COMMENTS, INITIAL_REACTIONS } from "@/data/videos";
-import type { VideoReactions as VideoReactionsType } from "@/types/video";
+import { VIDEOS, INITIAL_COMMENTS } from "@/data/videos";
+import type { VideoReactionsType } from "@/types/video";
 import { FormattedMessage, useIntl } from "react-intl";
 import VideoPlayer from "@/components/ui/video-player";
+
+const INITIAL_REACTIONS: VideoReactionsType = {
+  like: { type: 'like', count: 0, active: false },
+  dislike: { type: 'dislike', count: 0, active: false },
+  heart: { type: 'heart', count: 0, active: false },
+  star: { type: 'star', count: 0, active: false }
+};
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -32,7 +38,7 @@ const VideoDetail = () => {
     );
   }
 
-  const handleReaction = (type: keyof typeof reactions) => {
+  const handleReaction = (type: keyof VideoReactionsType) => {
     setReactions(prev => ({
       ...prev,
       [type]: {
@@ -48,10 +54,19 @@ const VideoDetail = () => {
       title: intl.formatMessage({ id: "app.success" }),
       description: intl.formatMessage(
         { id: reactions[type].active ? "app.reactionRemoved" : "app.reactionAdded" },
-        { type }
+        { type: type.toString() }
       ),
     });
   };
+
+  const comments = INITIAL_COMMENTS.map(comment => ({
+    id: comment.id,
+    video_id: id || '',
+    author: comment.author,
+    content: comment.content,
+    likes: comment.likes,
+    created_at: new Date().toISOString()
+  }));
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
@@ -87,7 +102,7 @@ const VideoDetail = () => {
           {video.description}
         </p>
 
-        <VideoComments initialComments={INITIAL_COMMENTS} />
+        <VideoComments initialComments={comments} videoId={id || ''} />
       </div>
     </div>
   );

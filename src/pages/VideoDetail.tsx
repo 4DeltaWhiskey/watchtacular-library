@@ -26,7 +26,32 @@ const VideoDetail = () => {
   const intl = useIntl();
   const { language } = useLanguage();
 
-  // Always call useQuery, but control its execution with enabled flag
+  // Query for video data from Supabase
+  const { data: videoData, isLoading } = useQuery({
+    queryKey: ["video", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("videos")
+        .select(`
+          *,
+          category:categories(
+            id,
+            name,
+            translations:category_translations!inner(
+              name
+            )
+          )
+        `)
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id && id !== "featured"
+  });
+
+  // Query for video translations
   const { data: videoTranslation } = useQuery({
     queryKey: ["video-translation", id, language],
     queryFn: async () => {
@@ -48,9 +73,19 @@ const VideoDetail = () => {
     return <Navigate to="/video/d290f1ee-6c54-4b01-90e6-d701748f0851" replace />;
   }
 
-  const video = VIDEOS[id as keyof typeof VIDEOS];
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
 
-  if (!video) {
+  // Handle non-existent video
+  if (!videoData) {
     return (
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="text-center">
@@ -106,31 +141,31 @@ const VideoDetail = () => {
       </Link>
 
       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
-        <VideoPlayer src={video.videoUrl} />
+        <VideoPlayer src={videoData.video_url} />
       </div>
 
       <div className="space-y-4">
         <h1 className="text-3xl font-bold">
-          {videoTranslation?.title || video.title}
+          {videoTranslation?.title || videoData.title}
         </h1>
         
         <div className="flex items-center gap-4 text-muted-foreground">
           <span>
-            {video.views} <FormattedMessage id="app.views" />
+            {videoData.views} <FormattedMessage id="app.views" />
           </span>
           <span>•</span>
-          <span>{video.date}</span>
+          <span>{new Date(videoData.created_at).toLocaleDateString()}</span>
         </div>
 
         <div className="flex items-center gap-3 py-4 border-y border-border">
           <div className="flex-1">
-            <h3 className="font-semibold">{video.author}</h3>
+            <h3 className="font-semibold">{videoData.author}</h3>
           </div>
           <VideoReactions reactions={reactions} onReaction={handleReaction} />
         </div>
 
         <p className="text-muted-foreground leading-relaxed">
-          {videoTranslation?.description || video.description}
+          {videoTranslation?.description || videoData.description}
         </p>
 
         <VideoComments initialComments={comments} videoId={id || ''} />

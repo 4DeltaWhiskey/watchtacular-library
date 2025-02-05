@@ -14,3 +14,4 @@ export default {
   "app.videoNotFound": "Video not found",
   "app.returnHome": "Return to home",
 };
+

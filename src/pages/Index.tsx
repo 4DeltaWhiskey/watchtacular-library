@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import CategoryFilter from "@/components/CategoryFilter";
 import FeaturedVideo from "@/components/FeaturedVideo";
 import VideoGrid from "@/components/VideoGrid";
+import { FormattedMessage } from "react-intl";
 
 const CATEGORIES = ["All", "Gaming", "Tech", "Art"];
 
@@ -81,7 +83,9 @@ const Index = () => {
       
       <div className="mt-12">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Recent Streams</h2>
+          <h2 className="text-2xl font-bold">
+            <FormattedMessage id="app.recentStreams" defaultMessage="Recent Streams" />
+          </h2>
           <CategoryFilter
             categories={CATEGORIES}
             activeCategory={activeCategory}
@@ -95,3 +99,4 @@ const Index = () => {
 };
 
 export default Index;
+

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { Comment } from "@/types/video";
+import { FormattedMessage } from "react-intl";
 
 interface VideoCommentsProps {
   initialComments: Comment[];
@@ -18,8 +19,8 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
   const handleCommentSubmit = () => {
     if (!newComment.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a comment",
+        title: <FormattedMessage id="app.error" defaultMessage="Error" />,
+        description: <FormattedMessage id="app.pleaseEnterComment" defaultMessage="Please enter a comment" />,
         variant: "destructive",
       });
       return;
@@ -36,8 +37,8 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     setComments([comment, ...comments]);
     setNewComment("");
     toast({
-      title: "Success",
-      description: "Comment added successfully",
+      title: <FormattedMessage id="app.success" defaultMessage="Success" />,
+      description: <FormattedMessage id="app.commentAdded" defaultMessage="Comment added successfully" />,
     });
   };
 
@@ -53,17 +54,19 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     <div className="mt-8">
       <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
         <MessageSquare className="w-5 h-5" />
-        Comments
+        <FormattedMessage id="app.comments" defaultMessage="Comments" />
       </h2>
       
       <div className="space-y-4 mb-8">
         <Textarea
-          placeholder="Add a comment..."
+          placeholder={<FormattedMessage id="app.addComment" defaultMessage="Add a comment..." /> as unknown as string}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           className="min-h-[100px]"
         />
-        <Button onClick={handleCommentSubmit}>Post Comment</Button>
+        <Button onClick={handleCommentSubmit}>
+          <FormattedMessage id="app.postComment" defaultMessage="Post Comment" />
+        </Button>
       </div>
 
       <div className="space-y-6">
@@ -91,3 +94,4 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     </div>
   );
 };
+

@@ -1,6 +1,7 @@
 
 import { Play } from "lucide-react";
 import { Link } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
 
 interface FeaturedVideoProps {
   title: string;
@@ -34,7 +35,7 @@ const FeaturedVideo = ({
         <h1 className="text-4xl font-bold mb-2">{title}</h1>
         <p className="text-lg text-gray-200 mb-4 max-w-2xl">{description}</p>
         <div className="flex items-center gap-2 text-sm text-gray-200">
-          <span>{views} views</span>
+          <span>{views} <FormattedMessage id="app.views" defaultMessage="views" /></span>
           <span>•</span>
           <span>{duration}</span>
         </div>
@@ -44,3 +45,4 @@ const FeaturedVideo = ({
 };
 
 export default FeaturedVideo;
+

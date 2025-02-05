@@ -7,6 +7,7 @@ import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
 import { VIDEOS, INITIAL_COMMENTS, INITIAL_REACTIONS } from "@/data/videos";
 import type { VideoReactions as VideoReactionsType } from "@/types/video";
+import { FormattedMessage } from "react-intl";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -18,9 +19,11 @@ const VideoDetail = () => {
     return (
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Video not found</h1>
+          <h1 className="text-2xl font-bold mb-4">
+            <FormattedMessage id="app.videoNotFound" defaultMessage="Video not found" />
+          </h1>
           <Link to="/" className="text-primary hover:underline">
-            Return to home
+            <FormattedMessage id="app.returnHome" defaultMessage="Return to home" />
           </Link>
         </div>
       </div>
@@ -40,7 +43,7 @@ const VideoDetail = () => {
     }));
 
     toast({
-      title: "Success",
+      title: <FormattedMessage id="app.success" defaultMessage="Success" />,
       description: `${type} ${reactions[type].active ? 'removed' : 'added'}!`,
     });
   };
@@ -52,7 +55,7 @@ const VideoDetail = () => {
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 group"
       >
         <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-        Back to videos
+        <FormattedMessage id="app.backToVideos" defaultMessage="Back to videos" />
       </Link>
 
       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
@@ -67,7 +70,7 @@ const VideoDetail = () => {
         <h1 className="text-3xl font-bold">{video.title}</h1>
         
         <div className="flex items-center gap-4 text-muted-foreground">
-          <span>{video.views} views</span>
+          <span>{video.views} <FormattedMessage id="app.views" defaultMessage="views" /></span>
           <span>•</span>
           <span>{video.date}</span>
         </div>
@@ -90,3 +93,4 @@ const VideoDetail = () => {
 };
 
 export default VideoDetail;
+

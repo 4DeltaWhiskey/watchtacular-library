@@ -1,7 +1,8 @@
 import VideoCard from "./VideoCard";
+import type { Video } from "@/types/video";
 
-interface Video {
-  id: number;
+interface GridVideo {
+  id: string | number;
   title: string;
   thumbnail: string;
   views: string;
@@ -11,7 +12,7 @@ interface Video {
 }
 
 interface VideoGridProps {
-  videos: Video[];
+  videos: GridVideo[];
   category: string;
 }
 

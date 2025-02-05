@@ -1,32 +1,42 @@
+export type Category = {
+  id: string;
+  name: string;
+  created_at: string;
+};
 
 export type Video = {
-  id: string | number;
-  title: string;
-  description: string;
+  id: string;
+  video_url: string;
   thumbnail: string;
-  views: string;
   duration: string;
-  date: string;
-  category: string;
-  videoUrl: string;
+  views: number;
+  likes: number;
   author: string;
-  likes: string;
+  category_id?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type VideoTranslation = {
+  id: string;
+  video_id: string;
+  language: string;
+  title: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Comment = {
-  id: number;
+  id: string;
+  video_id: string;
   author: string;
   content: string;
   likes: number;
-  timestamp: string;
+  created_at: string;
 };
 
-export type Reaction = {
-  type: 'like' | 'dislike' | 'heart' | 'star';
-  count: number;
-  active: boolean;
-};
-
-export type VideoReactions = {
-  [key: string]: Reaction;
+export type VideoWithTranslation = Video & {
+  translation: VideoTranslation;
+  category?: Category;
 };

@@ -7,13 +7,14 @@ import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
 import { VIDEOS, INITIAL_COMMENTS, INITIAL_REACTIONS } from "@/data/videos";
 import type { VideoReactions as VideoReactionsType } from "@/types/video";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const VideoDetail = () => {
   const { id } = useParams();
   const video = VIDEOS[id as keyof typeof VIDEOS];
   const [reactions, setReactions] = useState<VideoReactionsType>(INITIAL_REACTIONS);
   const { toast } = useToast();
+  const intl = useIntl();
 
   if (!video) {
     return (
@@ -43,7 +44,7 @@ const VideoDetail = () => {
     }));
 
     toast({
-      title: <FormattedMessage id="app.success" defaultMessage="Success" />,
+      title: intl.formatMessage({ id: "app.success" }),
       description: `${type} ${reactions[type].active ? 'removed' : 'added'}!`,
     });
   };
@@ -93,4 +94,3 @@ const VideoDetail = () => {
 };
 
 export default VideoDetail;
-

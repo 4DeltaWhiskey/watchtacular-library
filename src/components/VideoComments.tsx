@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { Comment } from "@/types/video";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface VideoCommentsProps {
   initialComments: Comment[];
@@ -15,12 +15,13 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
+  const intl = useIntl();
 
   const handleCommentSubmit = () => {
     if (!newComment.trim()) {
       toast({
-        title: <FormattedMessage id="app.error" defaultMessage="Error" />,
-        description: <FormattedMessage id="app.pleaseEnterComment" defaultMessage="Please enter a comment" />,
+        title: intl.formatMessage({ id: "app.error" }),
+        description: intl.formatMessage({ id: "app.pleaseEnterComment" }),
         variant: "destructive",
       });
       return;
@@ -37,8 +38,8 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     setComments([comment, ...comments]);
     setNewComment("");
     toast({
-      title: <FormattedMessage id="app.success" defaultMessage="Success" />,
-      description: <FormattedMessage id="app.commentAdded" defaultMessage="Comment added successfully" />,
+      title: intl.formatMessage({ id: "app.success" }),
+      description: intl.formatMessage({ id: "app.commentAdded" }),
     });
   };
 
@@ -59,7 +60,7 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
       
       <div className="space-y-4 mb-8">
         <Textarea
-          placeholder={<FormattedMessage id="app.addComment" defaultMessage="Add a comment..." /> as unknown as string}
+          placeholder={intl.formatMessage({ id: "app.addComment" })}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           className="min-h-[100px]"
@@ -94,4 +95,3 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     </div>
   );
 };
-

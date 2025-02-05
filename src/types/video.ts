@@ -1,6 +1,16 @@
-export type Category = {
+export type VideoReactionsType = {
+  like: { type: 'like'; count: number; active: boolean };
+  dislike: { type: 'dislike'; count: number; active: boolean };
+  heart: { type: 'heart'; count: number; active: boolean };
+  star: { type: 'star'; count: number; active: boolean };
+};
+
+export type Comment = {
   id: string;
-  name: string;
+  video_id: string;
+  author: string;
+  content: string;
+  likes: number;
   created_at: string;
 };
 
@@ -27,16 +37,8 @@ export type VideoTranslation = {
   updated_at: string;
 };
 
-export type Comment = {
+export type Category = {
   id: string;
-  video_id: string;
-  author: string;
-  content: string;
-  likes: number;
+  name: string;
   created_at: string;
-};
-
-export type VideoWithTranslation = Video & {
-  translation: VideoTranslation;
-  category?: Category;
 };

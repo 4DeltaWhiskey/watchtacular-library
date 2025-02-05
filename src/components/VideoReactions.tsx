@@ -1,8 +1,7 @@
-
 import { ThumbsUp, ThumbsDown, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import type { VideoReactions as VideoReactionsType } from "@/types/video";
+import type { VideoReactionsType } from "@/types/video";
 
 interface VideoReactionProps {
   reactions: VideoReactionsType;

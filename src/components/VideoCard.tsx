@@ -1,9 +1,8 @@
-
 import { Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface VideoCardProps {
-  id: number;
+  id: string;
   title: string;
   thumbnail: string;
   views: string;

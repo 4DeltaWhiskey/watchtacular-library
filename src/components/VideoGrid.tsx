@@ -1,12 +1,8 @@
 import VideoCard from "./VideoCard";
-import type { Video } from "@/types/video";
+import type { Video, VideoTranslation } from "@/types/video";
 
-interface GridVideo {
-  id: string | number;
+interface GridVideo extends Pick<Video, 'id' | 'thumbnail' | 'duration' | 'views'> {
   title: string;
-  thumbnail: string;
-  views: string;
-  duration: string;
   date: string;
   category: string;
 }
@@ -25,7 +21,15 @@ const VideoGrid = ({ videos, category }: VideoGridProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {filteredVideos.map((video) => (
-        <VideoCard key={video.id} {...video} />
+        <VideoCard
+          key={video.id}
+          id={video.id}
+          title={video.title}
+          thumbnail={video.thumbnail}
+          views={video.views.toString()}
+          duration={video.duration}
+          date={video.date}
+        />
       ))}
     </div>
   );

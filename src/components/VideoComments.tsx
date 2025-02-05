@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MessageSquare, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,18 +5,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { Comment } from "@/types/video";
 import { FormattedMessage, useIntl } from "react-intl";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VideoCommentsProps {
   initialComments: Comment[];
+  videoId: string;
 }
 
-export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
+export const VideoComments = ({ initialComments, videoId }: VideoCommentsProps) => {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
   const intl = useIntl();
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!newComment.trim()) {
       toast({
         title: intl.formatMessage({ id: "app.error" }),
@@ -27,15 +28,29 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
       return;
     }
 
-    const comment: Comment = {
-      id: comments.length + 1,
+    const comment: Omit<Comment, 'id' | 'created_at'> = {
+      video_id: videoId,
       author: intl.formatMessage({ id: "app.you" }),
       content: newComment,
       likes: 0,
-      timestamp: intl.formatMessage({ id: "app.justNow" }),
     };
 
-    setComments([comment, ...comments]);
+    const { data, error } = await supabase
+      .from('comments')
+      .insert(comment)
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: intl.formatMessage({ id: "app.error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setComments([data, ...comments]);
     setNewComment("");
     toast({
       title: intl.formatMessage({ id: "app.success" }),
@@ -43,7 +58,21 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     });
   };
 
-  const handleLike = (commentId: number) => {
+  const handleLike = async (commentId: string) => {
+    const { error } = await supabase
+      .from('comments')
+      .update({ likes: comments.find(c => c.id === commentId)!.likes + 1 })
+      .eq('id', commentId);
+
+    if (error) {
+      toast({
+        title: intl.formatMessage({ id: "app.error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setComments(comments.map(comment => 
       comment.id === commentId 
         ? { ...comment, likes: comment.likes + 1 }
@@ -76,7 +105,9 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-semibold">{comment.author}</h4>
-                <p className="text-sm text-muted-foreground">{comment.timestamp}</p>
+                <p className="text-sm text-muted-foreground">
+                  {new Date(comment.created_at).toLocaleDateString()}
+                </p>
               </div>
               <Button 
                 variant="ghost" 

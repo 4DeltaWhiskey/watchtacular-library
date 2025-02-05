@@ -1,5 +1,5 @@
 import { ChevronLeft } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
@@ -27,6 +27,11 @@ const VideoDetail = () => {
   const intl = useIntl();
   const { language } = useLanguage();
 
+  // If we're still using the "featured" route, redirect to the actual UUID
+  if (id === "featured") {
+    return <Navigate to="/video/d290f1ee-6c54-4b01-90e6-d701748f0851" replace />;
+  }
+
   const { data: videoTranslation } = useQuery({
     queryKey: ["video-translation", id, language],
     queryFn: async () => {
@@ -35,7 +40,7 @@ const VideoDetail = () => {
         .select("*")
         .eq("video_id", id)
         .eq("language", language)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;

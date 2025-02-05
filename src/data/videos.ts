@@ -1,6 +1,6 @@
 export const VIDEOS = {
-  featured: {
-    id: "featured",
+  "d290f1ee-6c54-4b01-90e6-d701748f0851": {
+    id: "d290f1ee-6c54-4b01-90e6-d701748f0851",
     title: "Building a Game Engine from Scratch",
     description:
       "Watch as we build a complete 2D game engine using modern OpenGL and C++. Perfect for game developers and graphics enthusiasts.",

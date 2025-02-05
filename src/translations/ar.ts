@@ -13,5 +13,9 @@ export default {
   "app.pleaseEnterComment": "الرجاء إدخال تعليق",
   "app.videoNotFound": "لم يتم العثور على الفيديو",
   "app.returnHome": "العودة إلى الصفحة الرئيسية",
+  "app.reactionAdded": "تمت إضافة {type}!",
+  "app.reactionRemoved": "تمت إزالة {type}!",
+  "app.justNow": "الآن",
+  "app.you": "أنت"
 };
 

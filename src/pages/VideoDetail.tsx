@@ -21,10 +21,10 @@ const VideoDetail = () => {
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">
-            <FormattedMessage id="app.videoNotFound" defaultMessage="Video not found" />
+            <FormattedMessage id="app.videoNotFound" />
           </h1>
           <Link to="/" className="text-primary hover:underline">
-            <FormattedMessage id="app.returnHome" defaultMessage="Return to home" />
+            <FormattedMessage id="app.returnHome" />
           </Link>
         </div>
       </div>
@@ -45,7 +45,10 @@ const VideoDetail = () => {
 
     toast({
       title: intl.formatMessage({ id: "app.success" }),
-      description: `${type} ${reactions[type].active ? 'removed' : 'added'}!`,
+      description: intl.formatMessage(
+        { id: reactions[type].active ? "app.reactionRemoved" : "app.reactionAdded" },
+        { type }
+      ),
     });
   };
 
@@ -56,7 +59,7 @@ const VideoDetail = () => {
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 group"
       >
         <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-        <FormattedMessage id="app.backToVideos" defaultMessage="Back to videos" />
+        <FormattedMessage id="app.backToVideos" />
       </Link>
 
       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden mb-6">
@@ -71,7 +74,7 @@ const VideoDetail = () => {
         <h1 className="text-3xl font-bold">{video.title}</h1>
         
         <div className="flex items-center gap-4 text-muted-foreground">
-          <span>{video.views} <FormattedMessage id="app.views" defaultMessage="views" /></span>
+          <span>{video.views} <FormattedMessage id="app.views" /></span>
           <span>•</span>
           <span>{video.date}</span>
         </div>

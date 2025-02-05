@@ -29,10 +29,10 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
 
     const comment: Comment = {
       id: comments.length + 1,
-      author: "You",
+      author: intl.formatMessage({ id: "app.you" }),
       content: newComment,
       likes: 0,
-      timestamp: "Just now",
+      timestamp: intl.formatMessage({ id: "app.justNow" }),
     };
 
     setComments([comment, ...comments]);
@@ -55,7 +55,7 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
     <div className="mt-8">
       <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
         <MessageSquare className="w-5 h-5" />
-        <FormattedMessage id="app.comments" defaultMessage="Comments" />
+        <FormattedMessage id="app.comments" />
       </h2>
       
       <div className="space-y-4 mb-8">
@@ -66,7 +66,7 @@ export const VideoComments = ({ initialComments }: VideoCommentsProps) => {
           className="min-h-[100px]"
         />
         <Button onClick={handleCommentSubmit}>
-          <FormattedMessage id="app.postComment" defaultMessage="Post Comment" />
+          <FormattedMessage id="app.postComment" />
         </Button>
       </div>
 

@@ -13,5 +13,9 @@ export default {
   "app.pleaseEnterComment": "Please enter a comment",
   "app.videoNotFound": "Video not found",
   "app.returnHome": "Return to home",
+  "app.reactionAdded": "{type} added!",
+  "app.reactionRemoved": "{type} removed!",
+  "app.justNow": "Just now",
+  "app.you": "You"
 };
 

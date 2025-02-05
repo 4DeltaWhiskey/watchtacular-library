@@ -3,7 +3,7 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
-import { VIDEOS, INITIAL_COMMENTS } from "@/data/videos";
+import { INITIAL_COMMENTS } from "@/data/videos";
 import type { VideoReactionsType } from "@/types/video";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -28,7 +28,7 @@ const VideoDetail = () => {
 
   // Query for video data from Supabase
   const { data: videoData, isLoading } = useQuery({
-    queryKey: ["video", id],
+    queryKey: ["video", id, language],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("videos")
@@ -40,9 +40,14 @@ const VideoDetail = () => {
             translations:category_translations!inner(
               name
             )
+          ),
+          translation:video_translations!inner(
+            title,
+            description
           )
         `)
         .eq("id", id)
+        .eq("translation.language", language)
         .single();
 
       if (error) throw error;
@@ -51,24 +56,7 @@ const VideoDetail = () => {
     enabled: !!id && id !== "featured"
   });
 
-  // Query for video translations
-  const { data: videoTranslation } = useQuery({
-    queryKey: ["video-translation", id, language],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("video_translations")
-        .select("*")
-        .eq("video_id", id)
-        .eq("language", language)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!id && id !== "featured"
-  });
-
-  // Handle redirects and error states after hooks
+  // Handle redirects and error states
   if (id === "featured") {
     return <Navigate to="/video/d290f1ee-6c54-4b01-90e6-d701748f0851" replace />;
   }
@@ -146,7 +134,7 @@ const VideoDetail = () => {
 
       <div className="space-y-4">
         <h1 className="text-3xl font-bold">
-          {videoTranslation?.title || videoData.title}
+          {videoData.translation[0]?.title || ""}
         </h1>
         
         <div className="flex items-center gap-4 text-muted-foreground">
@@ -165,7 +153,7 @@ const VideoDetail = () => {
         </div>
 
         <p className="text-muted-foreground leading-relaxed">
-          {videoTranslation?.description || videoData.description}
+          {videoData.translation[0]?.description || ""}
         </p>
 
         <VideoComments initialComments={comments} videoId={id || ''} />

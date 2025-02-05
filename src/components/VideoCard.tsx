@@ -1,5 +1,6 @@
 import { Play } from "lucide-react";
 import { Link } from "react-router-dom";
+import { FormattedMessage } from "react-intl";
 
 interface VideoCardProps {
   id: string;
@@ -27,7 +28,7 @@ const VideoCard = ({ id, title, thumbnail, views, duration, date }: VideoCardPro
       <div className="mt-3">
         <h3 className="font-semibold text-lg line-clamp-2">{title}</h3>
         <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-          <span>{views} views</span>
+          <span>{views} <FormattedMessage id="app.views" defaultMessage="views" /></span>
           <span>•</span>
           <span>{date}</span>
         </div>

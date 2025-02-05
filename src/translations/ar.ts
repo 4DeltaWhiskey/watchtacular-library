@@ -1,8 +1,7 @@
-
 export default {
   "app.featured": "مميز",
   "app.recentStreams": "البث المباشر الأخير",
-  "app.views": "المشاهدات",
+  "app.views": "مشاهدة",
   "app.backToVideos": "العودة إلى مقاطع الفيديو",
   "app.comments": "التعليقات",
   "app.addComment": "أضف تعليقا...",
@@ -18,4 +17,3 @@ export default {
   "app.justNow": "الآن",
   "app.you": "أنت"
 };
-

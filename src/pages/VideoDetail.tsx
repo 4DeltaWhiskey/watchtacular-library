@@ -1,20 +1,15 @@
 import { ChevronLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { VideoComments } from "@/components/VideoComments";
 import { VideoReactions } from "@/components/VideoReactions";
 import { VIDEOS, INITIAL_COMMENTS } from "@/data/videos";
 import type { VideoReactionsType } from "@/types/video";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useLanguage } from "@/contexts/LanguageContext";
 import VideoPlayer from "@/components/ui/video-player";
-
-const INITIAL_REACTIONS: VideoReactionsType = {
-  like: { type: 'like', count: 0, active: false },
-  dislike: { type: 'dislike', count: 0, active: false },
-  heart: { type: 'heart', count: 0, active: false },
-  star: { type: 'star', count: 0, active: false }
-};
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const VideoDetail = () => {
   const { id } = useParams();
@@ -22,6 +17,23 @@ const VideoDetail = () => {
   const [reactions, setReactions] = useState<VideoReactionsType>(INITIAL_REACTIONS);
   const { toast } = useToast();
   const intl = useIntl();
+  const { language } = useLanguage();
+
+  const { data: videoTranslation } = useQuery({
+    queryKey: ["video-translation", id, language],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("video_translations")
+        .select("*")
+        .eq("video_id", id)
+        .eq("language", language)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
 
   if (!video) {
     return (
@@ -83,7 +95,9 @@ const VideoDetail = () => {
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold">{video.title}</h1>
+        <h1 className="text-3xl font-bold">
+          {videoTranslation?.title || video.title}
+        </h1>
         
         <div className="flex items-center gap-4 text-muted-foreground">
           <span>
@@ -101,7 +115,7 @@ const VideoDetail = () => {
         </div>
 
         <p className="text-muted-foreground leading-relaxed">
-          {video.description}
+          {videoTranslation?.description || video.description}
         </p>
 
         <VideoComments initialComments={comments} videoId={id || ''} />

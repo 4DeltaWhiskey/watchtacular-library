@@ -1,6 +1,9 @@
+
 import { Play } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface VideoCardProps {
+  id: number;
   title: string;
   thumbnail: string;
   views: string;
@@ -8,9 +11,9 @@ interface VideoCardProps {
   date: string;
 }
 
-const VideoCard = ({ title, thumbnail, views, duration, date }: VideoCardProps) => {
+const VideoCard = ({ id, title, thumbnail, views, duration, date }: VideoCardProps) => {
   return (
-    <div className="video-card group">
+    <Link to={`/video/${id}`} className="video-card group">
       <div className="relative aspect-video overflow-hidden rounded-lg">
         <img
           src={thumbnail}
@@ -30,7 +33,7 @@ const VideoCard = ({ title, thumbnail, views, duration, date }: VideoCardProps) 
           <span>{date}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

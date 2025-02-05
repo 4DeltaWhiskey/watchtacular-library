@@ -1,4 +1,6 @@
+
 import { Play } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FeaturedVideoProps {
   title: string;
@@ -16,7 +18,7 @@ const FeaturedVideo = ({
   duration,
 }: FeaturedVideoProps) => {
   return (
-    <div className="relative aspect-[21/9] rounded-lg overflow-hidden group cursor-pointer">
+    <Link to="/video/featured" className="relative aspect-[21/9] rounded-lg overflow-hidden group cursor-pointer block">
       <img
         src={thumbnail}
         alt={title}
@@ -37,7 +39,7 @@ const FeaturedVideo = ({
           <span>{duration}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

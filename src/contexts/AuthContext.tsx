@@ -29,10 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        toast({
-          title: "Authentication Status",
-          description: `Logged in as ${session.user.email}`,
-        });
         checkAdminStatus(session.user.id);
       }
     });
@@ -46,17 +42,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        toast({
-          title: "Authentication Status",
-          description: `Logged in as ${session.user.email}`,
-        });
         checkAdminStatus(session.user.id);
       } else {
-        toast({
-          title: "Authentication Status",
-          description: "Logged out",
-          variant: "destructive",
-        });
         setIsAdmin(false);
       }
     });
@@ -67,20 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log("Checking admin status for user:", userId);
-      // Simple direct query to user_roles table
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
-        .maybeSingle(); // Use maybeSingle instead of single to avoid errors if no role exists
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking admin status:", error);
-        toast({
-          title: "Role Check",
-          description: "Unable to verify admin status",
-          variant: "destructive",
-        });
         setIsAdmin(false);
         return;
       }
@@ -89,26 +70,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const isUserAdmin = data?.role === 'admin';
       setIsAdmin(isUserAdmin);
       
-      if (data) {
-        toast({
-          title: "Role Assignment",
-          description: `User role: ${data.role}`,
-          variant: isUserAdmin ? "default" : "destructive",
-        });
-      } else {
-        toast({
-          title: "Role Assignment",
-          description: "No role assigned",
-          variant: "destructive",
-        });
-      }
     } catch (error) {
       console.error("Exception checking admin status:", error);
-      toast({
-        title: "Role Check",
-        description: "Error checking admin status",
-        variant: "destructive",
-      });
       setIsAdmin(false);
     }
   };

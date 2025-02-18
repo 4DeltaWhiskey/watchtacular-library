@@ -32,6 +32,7 @@ const App = () => (
                 <Route path="/video/:id" element={<VideoDetail />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin/videos/:id/edit" element={<VideoEdit />} />
+                <Route path="/admin/videos/new" element={<VideoEdit />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

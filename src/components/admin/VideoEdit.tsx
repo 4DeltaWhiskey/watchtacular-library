@@ -18,20 +18,37 @@ type VideoTranslation = {
   description: string | null;
 };
 
+type VideoData = {
+  video_url: string;
+  thumbnail: string;
+  duration: string;
+  author: string;
+};
+
 export function VideoEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [videoData, setVideoData] = useState<VideoData>({
+    video_url: "",
+    thumbnail: "",
+    duration: "",
+    author: "",
+  });
   const [translations, setTranslations] = useState<Record<Language, VideoTranslation>>({
     en: { title: "", description: "" },
     ar: { title: "", description: "" },
   });
 
+  const isNewVideo = id === "new";
+
   // Query for existing video data
-  const { data: videoData, isLoading } = useQuery({
+  const { data: existingVideoData, isLoading } = useQuery({
     queryKey: ["admin-video", id],
     queryFn: async () => {
+      if (isNewVideo) return null;
+      
       const { data, error } = await supabase
         .from("videos")
         .select(`
@@ -47,7 +64,14 @@ export function VideoEdit() {
 
       if (error) throw error;
 
-      // Initialize translations state with existing data
+      // Initialize form data with existing data
+      setVideoData({
+        video_url: data.video_url,
+        thumbnail: data.thumbnail,
+        duration: data.duration,
+        author: data.author,
+      });
+
       if (data.video_translations) {
         const newTranslations: Record<Language, VideoTranslation> = {
           en: { title: "", description: "" },
@@ -68,23 +92,48 @@ export function VideoEdit() {
 
       return data;
     },
+    enabled: !isNewVideo,
   });
 
-  // Mutation for updating video metadata
-  const updateVideoMutation = useMutation({
+  // Mutation for creating/updating video
+  const videoMutation = useMutation({
     mutationFn: async () => {
-      // Update video translations
+      let videoId = id;
+
+      // If it's a new video, create it first
+      if (isNewVideo) {
+        const { data: newVideo, error: videoError } = await supabase
+          .from("videos")
+          .insert({
+            ...videoData,
+            views: 0,
+            likes: 0,
+          })
+          .select()
+          .single();
+
+        if (videoError) throw videoError;
+        videoId = newVideo.id;
+      } else {
+        // Update existing video
+        const { error: videoError } = await supabase
+          .from("videos")
+          .update(videoData)
+          .eq("id", videoId);
+
+        if (videoError) throw videoError;
+      }
+
+      // Update translations
       const translationPromises = Object.entries(translations).map(([lang, trans]) => {
         return supabase
           .from("video_translations")
           .upsert({
-            video_id: id,
+            video_id: videoId,
             language: lang,
             title: trans.title,
             description: trans.description,
-          })
-          .eq("video_id", id)
-          .eq("language", lang);
+          });
       });
 
       const results = await Promise.all(translationPromises);
@@ -94,23 +143,33 @@ export function VideoEdit() {
         throw new Error("Failed to update some translations");
       }
 
-      return results;
+      return videoId;
     },
-    onSuccess: () => {
+    onSuccess: (newVideoId) => {
       toast({
         title: "Success",
-        description: "Video metadata updated successfully",
+        description: isNewVideo ? "Video created successfully" : "Video updated successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["admin-video", id] });
+      queryClient.invalidateQueries({ queryKey: ["admin-videos"] });
+      if (isNewVideo) {
+        navigate(`/admin/videos/${newVideoId}/edit`);
+      }
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to update video metadata",
+        description: error.message || "Failed to save video",
         variant: "destructive",
       });
     },
   });
+
+  const handleVideoDataChange = (field: keyof VideoData, value: string) => {
+    setVideoData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   const handleTranslationChange = (
     lang: Language,
@@ -128,15 +187,11 @@ export function VideoEdit() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateVideoMutation.mutate();
+    videoMutation.mutate();
   };
 
-  if (isLoading) {
+  if (!isNewVideo && isLoading) {
     return <div>Loading...</div>;
-  }
-
-  if (!videoData) {
-    return <div>Video not found</div>;
   }
 
   return (
@@ -152,10 +207,71 @@ export function VideoEdit() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit Video Metadata</CardTitle>
+          <CardTitle>{isNewVideo ? "Add New Video" : "Edit Video"}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <label htmlFor="video_url" className="text-sm font-medium">
+                  Video URL
+                </label>
+                <Input
+                  id="video_url"
+                  value={videoData.video_url}
+                  onChange={(e) => handleVideoDataChange("video_url", e.target.value)}
+                  placeholder="Enter video URL"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="thumbnail" className="text-sm font-medium">
+                  Thumbnail URL
+                </label>
+                <Input
+                  id="thumbnail"
+                  value={videoData.thumbnail}
+                  onChange={(e) => handleVideoDataChange("thumbnail", e.target.value)}
+                  placeholder="Enter thumbnail URL"
+                  required
+                />
+                {videoData.thumbnail && (
+                  <img
+                    src={videoData.thumbnail}
+                    alt="Video thumbnail preview"
+                    className="mt-2 max-w-xs rounded-md"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="duration" className="text-sm font-medium">
+                  Duration
+                </label>
+                <Input
+                  id="duration"
+                  value={videoData.duration}
+                  onChange={(e) => handleVideoDataChange("duration", e.target.value)}
+                  placeholder="e.g., 2:30"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="author" className="text-sm font-medium">
+                  Author
+                </label>
+                <Input
+                  id="author"
+                  value={videoData.author}
+                  onChange={(e) => handleVideoDataChange("author", e.target.value)}
+                  placeholder="Enter author name"
+                  required
+                />
+              </div>
+            </div>
+
             <div className="grid gap-6">
               <Tabs defaultValue="en">
                 <TabsList>
@@ -176,6 +292,7 @@ export function VideoEdit() {
                           handleTranslationChange(lang, "title", e.target.value)
                         }
                         dir={lang === "ar" ? "rtl" : "ltr"}
+                        required
                       />
                     </div>
 
@@ -201,9 +318,9 @@ export function VideoEdit() {
             <Button
               type="submit"
               className="w-full"
-              disabled={updateVideoMutation.isPending}
+              disabled={videoMutation.isPending}
             >
-              {updateVideoMutation.isPending ? "Saving..." : "Save Changes"}
+              {videoMutation.isPending ? "Saving..." : (isNewVideo ? "Create Video" : "Save Changes")}
             </Button>
           </form>
         </CardContent>

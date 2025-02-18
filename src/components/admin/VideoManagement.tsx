@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Edit } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function VideoManagement() {
@@ -30,9 +30,19 @@ export function VideoManagement() {
     navigate(`/admin/videos/${videoId}/edit`);
   };
 
+  const handleNewVideo = () => {
+    navigate(`/admin/videos/new`);
+  };
+
   return (
     <div className="grid gap-4">
-      <h2 className="text-2xl font-semibold">Videos Management</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">Videos Management</h2>
+        <Button onClick={handleNewVideo}>
+          <Plus className="mr-2 h-4 w-4" />
+          New Video
+        </Button>
+      </div>
       {isLoading ? (
         <p>Loading videos...</p>
       ) : (
@@ -40,6 +50,11 @@ export function VideoManagement() {
           {videos?.map((video) => (
             <Card key={video.id} className="p-4">
               <div className="space-y-4">
+                <img 
+                  src={video.thumbnail} 
+                  alt={video.video_translations?.[0]?.title || 'Video thumbnail'}
+                  className="w-full h-40 object-cover rounded-md"
+                />
                 <div className="font-medium">
                   {video.video_translations?.[0]?.title || 'Untitled Video'}
                 </div>

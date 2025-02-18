@@ -9,7 +9,7 @@ import Admin from "@/pages/Admin";
 import Auth from "@/pages/Auth";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import AdminProtectedRoute from "@/components/AdminProtectedRoute";
+import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { VideoEdit } from "@/components/admin/VideoEdit";
 
 const queryClient = new QueryClient();

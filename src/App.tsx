@@ -23,8 +23,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <div className="min-h-screen">
-            <LanguageSwitcher />
             <BrowserRouter>
+              <LanguageSwitcher />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/video/:id" element={<VideoDetail />} />

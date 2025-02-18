@@ -26,32 +26,26 @@ export function UserManagement() {
         throw new Error("Unauthorized");
       }
 
-      // Get all users with roles using a single query
+      // Directly fetch users from auth.admin API
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      if (authError) throw authError;
+
+      // Fetch all roles
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
-        .select('*');
-
+        .select('user_id, role');
       if (rolesError) throw rolesError;
 
-      const usersWithRoles: UserWithRole[] = [];
-      
-      // Fetch user details for each role
-      for (const role of roles) {
-        try {
-          const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(role.user_id);
-          
-          if (!userError && user) {
-            usersWithRoles.push({
-              id: user.id,
-              email: user.email,
-              created_at: user.created_at,
-              role: role.role
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching user:", error);
-        }
-      }
+      // Create a map of user_id to role for faster lookups
+      const roleMap = new Map(roles.map(role => [role.user_id, role.role]));
+
+      // Map users with their roles
+      const usersWithRoles: UserWithRole[] = authUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+        role: roleMap.get(user.id) || 'user'
+      }));
 
       return usersWithRoles;
     },
@@ -69,9 +63,31 @@ export function UserManagement() {
     }
 
     try {
+      // First check if the user already has a role
+      const { data: existingRole, error: checkError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        throw checkError;
+      }
+
+      if (existingRole?.role === 'admin') {
+        toast({
+          title: "Info",
+          description: "User is already an admin",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role: 'admin' });
+        .upsert({ 
+          user_id: userId, 
+          role: 'admin' 
+        });
       
       if (error) throw error;
       
@@ -82,6 +98,7 @@ export function UserManagement() {
       
       queryClient.invalidateQueries({ queryKey: ['app-users'] });
     } catch (error: any) {
+      console.error('Error empowering admin:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to empower user as admin",

@@ -360,24 +360,22 @@ export function VideoEdit() {
             </div>
 
             <div className="grid gap-6">
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleTranslate}
-                  disabled={!translations.en.title && !translations.en.description}
-                  className="mb-2"
-                >
-                  <Languages className="w-4 h-4 mr-2" />
-                  Auto-translate to Arabic
-                </Button>
-              </div>
-
               <Tabs defaultValue="en">
-                <TabsList>
-                  <TabsTrigger value="en">English</TabsTrigger>
-                  <TabsTrigger value="ar">Arabic</TabsTrigger>
-                </TabsList>
+                <div className="flex items-center justify-between mb-2">
+                  <TabsList>
+                    <TabsTrigger value="en">English</TabsTrigger>
+                    <TabsTrigger value="ar">Arabic</TabsTrigger>
+                  </TabsList>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTranslate}
+                    disabled={!translations.en.title && !translations.en.description}
+                  >
+                    <Languages className="w-4 h-4 mr-2" />
+                    Auto-translate to Arabic
+                  </Button>
+                </div>
 
                 {(["en", "ar"] as const).map((lang) => (
                   <TabsContent key={lang} value={lang} className="space-y-4">

@@ -1,4 +1,3 @@
-
 import { Settings, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,13 @@ import { useToast } from "@/hooks/use-toast";
 
 type Tab = "users" | "videos" | "settings";
 
+type UserWithRole = {
+  id: string;
+  email: string | null;
+  created_at: string | null;
+  role: string;
+}
+
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<Tab>("users");
   const { toast } = useToast();
@@ -18,25 +24,30 @@ export default function Admin() {
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ['app-users'],
     queryFn: async () => {
-      // Instead of using admin.listUsers(), we'll query our user_roles table
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
-        .select(`
-          user_id,
-          role,
-          users:user_id (
-            email,
-            created_at
-          )
-        `);
+        .select('user_id, role');
 
       if (rolesError) throw rolesError;
-      return userRoles.map(role => ({
-        id: role.user_id,
-        email: role.users?.email,
-        created_at: role.users?.created_at,
-        role: role.role
-      }));
+
+      const userIds = [...new Set(userRoles.map(role => role.user_id))];
+      
+      const usersWithRoles: UserWithRole[] = [];
+      
+      for (const role of userRoles) {
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(role.user_id);
+        
+        if (!userError && userData.user) {
+          usersWithRoles.push({
+            id: role.user_id,
+            email: userData.user.email,
+            created_at: userData.user.created_at,
+            role: role.role
+          });
+        }
+      }
+
+      return usersWithRoles;
     },
   });
 
@@ -59,7 +70,6 @@ export default function Admin() {
 
   const handleEmpowerAdmin = async (userId: string) => {
     try {
-      // Check if user is already an admin
       const { data: existingRole } = await supabase
         .from('user_roles')
         .select('role')
@@ -86,7 +96,6 @@ export default function Admin() {
         description: "User has been empowered as an admin",
       });
       
-      // Refresh users data
       queryClient.invalidateQueries({ queryKey: ['app-users'] });
     } catch (error: any) {
       toast({
@@ -140,7 +149,7 @@ export default function Admin() {
                     <div>
                       <div className="font-medium">{user.email}</div>
                       <div className="text-sm text-muted-foreground">
-                        Created: {new Date(user.created_at).toLocaleDateString()}
+                        Created: {new Date(user.created_at || '').toLocaleDateString()}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Role: {user.role}

@@ -67,11 +67,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log("Checking admin status for user:", userId);
+      // Simple direct query to user_roles table
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid errors if no role exists
 
       if (error) {
         console.error("Error checking admin status:", error);
@@ -88,11 +89,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const isUserAdmin = data?.role === 'admin';
       setIsAdmin(isUserAdmin);
       
-      toast({
-        title: "Role Assignment",
-        description: `User role: ${data?.role || 'none'}`,
-        variant: isUserAdmin ? "default" : "destructive",
-      });
+      if (data) {
+        toast({
+          title: "Role Assignment",
+          description: `User role: ${data.role}`,
+          variant: isUserAdmin ? "default" : "destructive",
+        });
+      } else {
+        toast({
+          title: "Role Assignment",
+          description: "No role assigned",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Exception checking admin status:", error);
       toast({

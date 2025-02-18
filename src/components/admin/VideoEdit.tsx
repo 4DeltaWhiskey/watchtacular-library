@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +47,11 @@ export function VideoEdit() {
   const { isLoading } = useQuery({
     queryKey: ["admin-video", id],
     queryFn: async () => {
+      // Return null for new videos to prevent querying the database
+      if (isNewVideo || !id || id === "new") {
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("videos")
         .select(`

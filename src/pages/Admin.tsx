@@ -1,16 +1,19 @@
 
-import { Settings, Users, Video } from "lucide-react";
+import { Settings, Users, Video, UserCheck } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 type Tab = "users" | "videos" | "settings";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<Tab>("users");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -37,6 +40,30 @@ export default function Admin() {
       return data;
     },
   });
+
+  const handleEmpowerAdmin = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role: 'admin' });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "User has been empowered as an admin",
+      });
+      
+      // Refresh users data
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to empower user as admin",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -77,11 +104,21 @@ export default function Admin() {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {users?.map((user) => (
-                  <Card key={user.id} className="p-4">
-                    <div className="font-medium">{user.email}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Created: {new Date(user.created_at).toLocaleDateString()}
+                  <Card key={user.id} className="p-4 space-y-4">
+                    <div>
+                      <div className="font-medium">{user.email}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Created: {new Date(user.created_at).toLocaleDateString()}
+                      </div>
                     </div>
+                    <Button 
+                      onClick={() => handleEmpowerAdmin(user.id)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <UserCheck className="mr-2 h-4 w-4" />
+                      Empower as Admin
+                    </Button>
                   </Card>
                 ))}
               </div>

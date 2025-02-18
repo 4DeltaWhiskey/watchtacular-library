@@ -27,17 +27,23 @@ const App = () => (
               <Toaster />
               <Sonner />
               <div className="min-h-screen">
-                <div className="flex items-center justify-end gap-2 p-4">
-                  <ThemeSwitcher />
-                  <LanguageSwitcher />
-                  <LoginButton />
-                </div>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/video/:id" element={<VideoDetail />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <header className="fixed top-0 right-0 w-full bg-background/80 backdrop-blur-sm border-b z-50">
+                  <div className="container mx-auto">
+                    <div className="flex items-center justify-end gap-4 p-4">
+                      <ThemeSwitcher />
+                      <LanguageSwitcher />
+                      <LoginButton />
+                    </div>
+                  </div>
+                </header>
+                <main className="pt-20">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/video/:id" element={<VideoDetail />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
               </div>
             </TooltipProvider>
           </BrowserRouter>

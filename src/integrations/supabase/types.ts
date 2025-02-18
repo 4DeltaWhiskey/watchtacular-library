@@ -163,6 +163,7 @@ export type Database = {
           created_at: string
           duration: string
           id: string
+          is_featured: boolean | null
           likes: number
           thumbnail: string
           updated_at: string
@@ -175,6 +176,7 @@ export type Database = {
           created_at?: string
           duration: string
           id?: string
+          is_featured?: boolean | null
           likes?: number
           thumbnail: string
           updated_at?: string
@@ -187,6 +189,7 @@ export type Database = {
           created_at?: string
           duration?: string
           id?: string
+          is_featured?: boolean | null
           likes?: number
           thumbnail?: string
           updated_at?: string

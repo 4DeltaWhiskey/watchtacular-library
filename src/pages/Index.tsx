@@ -74,23 +74,7 @@ const Index = () => {
     }
   });
 
-  const featuredVideo = videos?.[0];
-
-  if (loadingCategories || loadingVideos) {
-    return (
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        <Skeleton className="w-full aspect-[21/9] rounded-lg" />
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="aspect-video rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const featuredVideo = videos?.find(video => video.is_featured) || videos?.[0];
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">

@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LoginButton = () => {
@@ -37,8 +37,12 @@ const LoginButton = () => {
         <Button
           variant="outline"
           asChild
+          className="gap-2"
         >
-          <Link to="/admin">Admin</Link>
+          <Link to="/admin">
+            <Settings className="h-4 w-4" />
+            <span>Admin</span>
+          </Link>
         </Button>
       )}
       <Button

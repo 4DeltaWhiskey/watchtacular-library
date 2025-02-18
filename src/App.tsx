@@ -13,6 +13,7 @@ import Admin from "@/pages/Admin";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import LoginButton from "@/components/LoginButton";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -21,30 +22,32 @@ export default function App() {
     <Router>
       <ThemeProvider attribute="class" defaultTheme="system" storageKey="vite-ui-theme">
         <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <div className="min-h-screen">
-              <div className="flex items-center justify-end gap-4 p-4">
-                <ThemeSwitcher />
-                <LanguageSwitcher />
-                <LoginButton />
+          <LanguageProvider>
+            <QueryClientProvider client={queryClient}>
+              <div className="min-h-screen">
+                <div className="flex items-center justify-end gap-4 p-4">
+                  <ThemeSwitcher />
+                  <LanguageSwitcher />
+                  <LoginButton />
+                </div>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <AdminProtectedRoute>
+                        <Admin />
+                      </AdminProtectedRoute>
+                    } 
+                  />
+                  <Route path="/videos/:id" element={<VideoDetail />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
               </div>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <AdminProtectedRoute>
-                      <Admin />
-                    </AdminProtectedRoute>
-                  } 
-                />
-                <Route path="/videos/:id" element={<VideoDetail />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </div>
-          </QueryClientProvider>
+            </QueryClientProvider>
+          </LanguageProvider>
         </AuthProvider>
       </ThemeProvider>
     </Router>

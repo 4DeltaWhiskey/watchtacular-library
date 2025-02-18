@@ -16,6 +16,6 @@ export default {
   "app.reactionAdded": "{type} added!",
   "app.reactionRemoved": "{type} removed!",
   "app.justNow": "Just now",
-  "app.you": "You"
+  "app.you": "You",
+  "app.admin": "Admin"
 };
-

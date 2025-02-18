@@ -1,3 +1,4 @@
+
 export default {
   "app.featured": "مميز",
   "app.recentStreams": "البث المباشر الأخير",
@@ -15,5 +16,6 @@ export default {
   "app.reactionAdded": "تمت إضافة {type}!",
   "app.reactionRemoved": "تمت إزالة {type}!",
   "app.justNow": "الآن",
-  "app.you": "أنت"
+  "app.you": "أنت",
+  "app.admin": "المشرف"
 };

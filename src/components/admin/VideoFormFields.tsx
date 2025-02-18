@@ -5,15 +5,25 @@ import { VideoData } from "@/types/video-edit";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
 
 interface VideoFormFieldsProps {
   videoData: VideoData;
   categories?: any[];
   onVideoDataChange: (field: keyof VideoData, value: string) => void;
+  translations: {
+    en: { title: string; description: string | null };
+    ar: { title: string; description: string | null };
+  };
+  onTranslationChange: (lang: "en" | "ar", field: "title" | "description", value: string) => void;
 }
 
-export function VideoFormFields({ videoData, categories, onVideoDataChange }: VideoFormFieldsProps) {
+export function VideoFormFields({ 
+  videoData, 
+  categories, 
+  onVideoDataChange,
+  translations,
+  onTranslationChange 
+}: VideoFormFieldsProps) {
   const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false);
   const { toast } = useToast();
 
@@ -38,8 +48,8 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
         onVideoDataChange("thumbnail", data.thumbnailUrl);
         if (data.duration) onVideoDataChange("duration", data.duration);
         if (data.author) onVideoDataChange("author", data.author);
-        if (data.title) onVideoDataChange("title", data.title);
-        if (data.description) onVideoDataChange("description", data.description);
+        if (data.title) onTranslationChange("en", "title", data.title);
+        if (data.description) onTranslationChange("en", "description", data.description);
         
         toast({
           title: "Success",
@@ -90,32 +100,6 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
           onChange={handleVideoUrlChange}
           placeholder="Enter video URL"
           required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="title" className="text-sm font-medium">
-          Title
-        </label>
-        <Input
-          id="title"
-          value={videoData.title}
-          onChange={(e) => onVideoDataChange("title", e.target.value)}
-          placeholder="Enter video title"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="description" className="text-sm font-medium">
-          Description
-        </label>
-        <Textarea
-          id="description"
-          value={videoData.description}
-          onChange={(e) => onVideoDataChange("description", e.target.value)}
-          placeholder="Enter video description"
-          rows={5}
         />
       </div>
 

@@ -47,6 +47,8 @@ export function VideoEditForm({
         videoData={videoData}
         categories={categories}
         onVideoDataChange={onVideoDataChange}
+        translations={translations}
+        onTranslationChange={onTranslationChange}
       />
 
       <VideoTranslations

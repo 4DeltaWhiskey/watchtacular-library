@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
+import LoginButton from "./components/LoginButton";
 import Index from "./pages/Index";
 import VideoDetail from "./pages/VideoDetail";
 import Auth from "./pages/Auth";
@@ -25,8 +26,11 @@ const App = () => (
             <Toaster />
             <Sonner />
             <div className="min-h-screen">
-              <ThemeSwitcher />
-              <LanguageSwitcher />
+              <div className="flex items-center justify-end gap-2 p-4">
+                <ThemeSwitcher />
+                <LanguageSwitcher />
+                <LoginButton />
+              </div>
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />

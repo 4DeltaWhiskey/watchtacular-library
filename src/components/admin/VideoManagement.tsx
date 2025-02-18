@@ -15,13 +15,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type SortOption = "titleAsc" | "titleDesc" | "viewsAsc" | "viewsDesc";
+type SortOption = "titleAsc" | "titleDesc" | "viewsAsc" | "viewsDesc" | "dateAsc" | "dateDesc";
 
 export function VideoManagement() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [sortBy, setSortBy] = useState<SortOption>("titleAsc");
+  const [sortBy, setSortBy] = useState<SortOption>("dateDesc");
   
   const { data: videos, isLoading } = useQuery({
     queryKey: ['admin-videos'],
@@ -48,10 +48,16 @@ export function VideoManagement() {
   });
 
   const sortedVideos = videos?.slice().sort((a, b) => {
+    // Always put featured video first
+    if (a.is_featured) return -1;
+    if (b.is_featured) return 1;
+
     const titleA = a.video_translations?.[0]?.title || '';
     const titleB = b.video_translations?.[0]?.title || '';
     const viewsA = a.views;
     const viewsB = b.views;
+    const dateA = new Date(a.created_at).getTime();
+    const dateB = new Date(b.created_at).getTime();
 
     switch (sortBy) {
       case 'titleAsc':
@@ -62,6 +68,10 @@ export function VideoManagement() {
         return viewsA - viewsB;
       case 'viewsDesc':
         return viewsB - viewsA;
+      case 'dateAsc':
+        return dateA - dateB;
+      case 'dateDesc':
+        return dateB - dateA;
       default:
         return 0;
     }
@@ -117,6 +127,8 @@ export function VideoManagement() {
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="dateDesc">Newest First</SelectItem>
+              <SelectItem value="dateAsc">Oldest First</SelectItem>
               <SelectItem value="titleAsc">Title A-Z</SelectItem>
               <SelectItem value="titleDesc">Title Z-A</SelectItem>
               <SelectItem value="viewsAsc">Views (Low to High)</SelectItem>
@@ -155,8 +167,9 @@ export function VideoManagement() {
                 <div className="font-medium">
                   {video.video_translations?.[0]?.title || 'Untitled Video'}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Views: {video.views}
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <div>Views: {video.views}</div>
+                  <div>Uploaded: {new Date(video.created_at).toLocaleDateString()}</div>
                 </div>
                 <div className="flex gap-2">
                   <Button

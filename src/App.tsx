@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ThemeProvider } from "next-themes";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import Index from "./pages/Index";
 import VideoDetail from "./pages/VideoDetail";
 import NotFound from "./pages/NotFound";
@@ -24,7 +23,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <div className="min-h-screen">
-            <ThemeSwitcher />
             <LanguageSwitcher />
             <BrowserRouter>
               <Routes>

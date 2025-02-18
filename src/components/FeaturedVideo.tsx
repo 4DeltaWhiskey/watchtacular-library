@@ -39,7 +39,7 @@ const FeaturedVideo = ({
       <div className="absolute bottom-0 left-0 p-6 w-full">
         <h1 className="text-4xl font-bold mb-2">{title}</h1>
         <div className="relative">
-          <p className={`text-lg text-gray-200 mb-4 max-w-2xl ${!isExpanded ? 'line-clamp-5' : ''}`}>
+          <p className={`text-lg text-gray-200 mb-4 max-w-2xl ${!isExpanded ? 'line-clamp-3' : ''}`}>
             {description}
           </p>
           {description.length > 100 && (

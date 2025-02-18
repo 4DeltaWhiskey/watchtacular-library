@@ -8,16 +8,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 type UserWithRole = {
-  id: string;
+  user_id: string;
   email: string | null;
-  created_at: string | null;
   role: string;
 }
 
 export function UserManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
 
   const { data: users, isLoading, error } = useQuery({
     queryKey: ['app-users'],
@@ -26,25 +25,24 @@ export function UserManagement() {
         throw new Error("Unauthorized");
       }
 
-      // Directly fetch users from auth.admin API
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) throw authError;
-
-      // Fetch all roles
+      // Fetch all roles with user emails using a join
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
-        .select('user_id, role');
+        .select(`
+          user_id,
+          role,
+          users:user_id (
+            email
+          )
+        `);
+
       if (rolesError) throw rolesError;
 
-      // Create a map of user_id to role for faster lookups
-      const roleMap = new Map(roles.map(role => [role.user_id, role.role]));
-
-      // Map users with their roles
-      const usersWithRoles: UserWithRole[] = authUsers.map(user => ({
-        id: user.id,
-        email: user.email,
-        created_at: user.created_at,
-        role: roleMap.get(user.id) || 'user'
+      // Map the data to our expected format
+      const usersWithRoles: UserWithRole[] = roles.map(role => ({
+        user_id: role.user_id,
+        email: role.users?.email,
+        role: role.role
       }));
 
       return usersWithRoles;
@@ -53,7 +51,7 @@ export function UserManagement() {
   });
 
   const handleEmpowerAdmin = async (userId: string) => {
-    if (!isAdmin) {
+    if (!isAdmin || !user) {
       toast({
         title: "Error",
         description: "You are not authorized to perform this action",
@@ -131,18 +129,15 @@ export function UserManagement() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {users?.map((user) => (
-            <Card key={user.id} className="p-4 space-y-4">
+            <Card key={user.user_id} className="p-4 space-y-4">
               <div>
                 <div className="font-medium">{user.email}</div>
-                <div className="text-sm text-muted-foreground">
-                  Created: {new Date(user.created_at || '').toLocaleDateString()}
-                </div>
                 <div className="text-sm text-muted-foreground">
                   Role: {user.role}
                 </div>
               </div>
               <Button 
-                onClick={() => handleEmpowerAdmin(user.id)}
+                onClick={() => handleEmpowerAdmin(user.user_id)}
                 variant="outline"
                 size="sm"
                 disabled={user.role === 'admin'}

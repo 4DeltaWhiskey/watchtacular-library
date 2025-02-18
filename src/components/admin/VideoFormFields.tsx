@@ -19,25 +19,38 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
   const generateThumbnail = async (videoUrl: string) => {
     if (!videoUrl) return;
 
+    console.log('Starting thumbnail generation for URL:', videoUrl);
     setIsGeneratingThumbnail(true);
+    
     try {
+      console.log('Invoking generate-video-thumbnail function...');
       const { data, error } = await supabase.functions.invoke('generate-video-thumbnail', {
         body: { videoUrl },
       });
 
+      console.log('Function response:', { data, error });
+
       if (error) throw error;
-      if (data.thumbnailUrl) {
+      if (data?.thumbnailUrl) {
+        console.log('Setting new thumbnail URL:', data.thumbnailUrl);
         onVideoDataChange("thumbnail", data.thumbnailUrl);
         toast({
           title: "Success",
           description: "Thumbnail generated successfully",
+        });
+      } else {
+        console.log('No thumbnail URL in response');
+        toast({
+          title: "Error",
+          description: "No thumbnail URL received",
+          variant: "destructive",
         });
       }
     } catch (error) {
       console.error('Error generating thumbnail:', error);
       toast({
         title: "Error",
-        description: "Failed to generate thumbnail",
+        description: error instanceof Error ? error.message : "Failed to generate thumbnail",
         variant: "destructive",
       });
     } finally {
@@ -47,9 +60,17 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
 
   const handleVideoUrlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
+    console.log('Video URL changed:', newUrl);
     onVideoDataChange("video_url", newUrl);
+    
     if (newUrl && !videoData.thumbnail) {
+      console.log('Triggering thumbnail generation');
       await generateThumbnail(newUrl);
+    } else {
+      console.log('Skipping thumbnail generation:', { 
+        hasUrl: Boolean(newUrl), 
+        hasThumbnail: Boolean(videoData.thumbnail) 
+      });
     }
   };
 

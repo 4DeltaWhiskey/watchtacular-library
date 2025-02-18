@@ -1,51 +1,41 @@
 
-import { Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import Index from "@/pages/Index";
-import VideoDetail from "@/pages/VideoDetail";
-import NotFound from "@/pages/NotFound";
-import Admin from "@/pages/Admin";
-import Auth from "@/pages/Auth";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
-import { VideoEdit } from "@/components/admin/VideoEdit";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { ThemeProvider } from "next-themes";
+import LanguageSwitcher from "./components/LanguageSwitcher";
+import { ThemeSwitcher } from "./components/ThemeSwitcher";
+import Index from "./pages/Index";
+import VideoDetail from "./pages/VideoDetail";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LanguageProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/video/:id" element={<VideoDetail />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route
-              path="/admin"
-              element={
-                <AdminProtectedRoute>
-                  <Admin />
-                </AdminProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/videos/:id/edit"
-              element={
-                <AdminProtectedRoute>
-                  <VideoEdit />
-                </AdminProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider attribute="class" defaultTheme="dark">
+      <LanguageProvider>
+        <TooltipProvider>
           <Toaster />
-        </LanguageProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
-}
+          <Sonner />
+          <div className="min-h-screen">
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/video/:id" element={<VideoDetail />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </div>
+        </TooltipProvider>
+      </LanguageProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
 
 export default App;

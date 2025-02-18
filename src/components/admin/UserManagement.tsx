@@ -20,7 +20,6 @@ export function UserManagement() {
   const { data: users, isLoading } = useQuery({
     queryKey: ['app-users'],
     queryFn: async () => {
-      // First get all users from auth.users through our proxy
       const { data: userData, error: userError } = await supabase
         .from('user_roles')
         .select('user_id, role');
@@ -49,10 +48,12 @@ export function UserManagement() {
   const handleEmpowerAdmin = async (userId: string) => {
     try {
       // First check if user is already admin
-      const { data: isAdmin } = await supabase.rpc(
-        'check_user_role',
-        { user_id: userId, required_role: 'admin' }
+      const { data: isAdmin, error: checkError } = await supabase.rpc(
+        'is_admin',
+        { lookup_user_id: userId }
       );
+
+      if (checkError) throw checkError;
 
       if (isAdmin) {
         toast({

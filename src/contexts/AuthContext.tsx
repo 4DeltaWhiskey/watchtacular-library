@@ -55,8 +55,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log("Checking admin status for user:", userId);
       const { data: isAdmin, error } = await supabase.rpc(
-        'check_user_role',
-        { user_id: userId, required_role: 'admin' }
+        'is_admin',
+        { lookup_user_id: userId }
       );
 
       if (error) {

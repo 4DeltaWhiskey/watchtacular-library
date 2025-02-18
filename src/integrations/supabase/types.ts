@@ -208,10 +208,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_user_role: {
+      is_admin: {
         Args: {
-          user_id: string
-          required_role: Database["public"]["Enums"]["app_role"]
+          lookup_user_id: string
         }
         Returns: boolean
       }

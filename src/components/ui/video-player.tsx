@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Volume2, Volume1, VolumeX, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -45,6 +46,27 @@ const CustomSlider = ({
   );
 };
 
+const isYouTubeUrl = (url: string): boolean => {
+  const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
+  return youtubeRegex.test(url);
+};
+
+const getYouTubeVideoId = (url: string): string | null => {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+  return match ? match[1] : null;
+};
+
+const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
+  return (
+    <iframe
+      src={`https://www.youtube.com/embed/${videoId}`}
+      className="w-full h-full"
+      allowFullScreen
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    />
+  );
+};
+
 const VideoPlayer = ({ src }: { src: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,6 +78,9 @@ const VideoPlayer = ({ src }: { src: string }) => {
   const [showControls, setShowControls] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  const isYouTube = isYouTubeUrl(src);
+  const youtubeVideoId = isYouTube ? getYouTubeVideoId(src) : null;
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -124,6 +149,14 @@ const VideoPlayer = ({ src }: { src: string }) => {
       setPlaybackSpeed(speed);
     }
   };
+
+  if (isYouTube && youtubeVideoId) {
+    return (
+      <div className="relative w-full aspect-video mx-auto rounded-xl overflow-hidden bg-black">
+        <YouTubeEmbed videoId={youtubeVideoId} />
+      </div>
+    );
+  }
 
   return (
     <motion.div

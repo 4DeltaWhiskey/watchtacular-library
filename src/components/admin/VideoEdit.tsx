@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -142,16 +143,22 @@ export function VideoEdit() {
 
         if (videoError) throw videoError;
 
-        // Update translations
+        // Update translations using upsert
         const translationPromises = Object.entries(translations).map(([lang, trans]) => {
           return supabase
             .from("video_translations")
-            .upsert({
-              video_id: id,
-              language: lang,
-              title: trans.title,
-              description: trans.description,
-            });
+            .upsert(
+              {
+                video_id: id,
+                language: lang,
+                title: trans.title,
+                description: trans.description,
+              },
+              {
+                onConflict: 'video_id,language',
+                ignoreDuplicates: false,
+              }
+            );
         });
 
         const results = await Promise.all(translationPromises);

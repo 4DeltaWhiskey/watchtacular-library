@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +10,13 @@ import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, Languages } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Language = "en" | "ar";
 
@@ -22,6 +30,7 @@ type VideoData = {
   thumbnail: string;
   duration: string;
   author: string;
+  category_id?: string;
 };
 
 export function VideoEdit() {
@@ -34,6 +43,7 @@ export function VideoEdit() {
     thumbnail: "",
     duration: "",
     author: "",
+    category_id: undefined,
   });
   const [translations, setTranslations] = useState<Record<Language, VideoTranslation>>({
     en: { title: "", description: "" },
@@ -41,6 +51,20 @@ export function VideoEdit() {
   });
 
   const isNewVideo = !id || id === "new";
+
+  // Query for categories
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Query for existing video data
   const { isLoading } = useQuery({
@@ -77,6 +101,7 @@ export function VideoEdit() {
         thumbnail: data.thumbnail,
         duration: data.duration,
         author: data.author,
+        category_id: data.category_id,
       });
 
       if (data.video_translations) {
@@ -356,6 +381,27 @@ export function VideoEdit() {
                   placeholder="Enter author name"
                   required
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="category" className="text-sm font-medium">
+                  Category
+                </label>
+                <Select
+                  value={videoData.category_id}
+                  onValueChange={(value) => handleVideoDataChange("category_id", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

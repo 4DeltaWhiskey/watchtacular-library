@@ -75,10 +75,10 @@ export function VideoEdit() {
 
       // Initialize form data with existing data
       setVideoData({
-        video_url: data.video_url,
-        thumbnail: data.thumbnail,
-        duration: data.duration,
-        author: data.author,
+        video_url: data.video_url || "",
+        thumbnail: data.thumbnail || "",
+        duration: data.duration || "",
+        author: data.author || "",
         category_id: data.category_id,
       });
 

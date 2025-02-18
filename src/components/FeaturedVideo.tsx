@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FormattedMessage } from "react-intl";
 
 interface FeaturedVideoProps {
+  id: string;
   title: string;
   description: string;
   thumbnail: string;
@@ -12,6 +13,7 @@ interface FeaturedVideoProps {
 }
 
 const FeaturedVideo = ({
+  id,
   title,
   description,
   thumbnail,
@@ -19,7 +21,7 @@ const FeaturedVideo = ({
   duration,
 }: FeaturedVideoProps) => {
   return (
-    <Link to="/video/featured" className="relative aspect-[21/9] rounded-lg overflow-hidden group cursor-pointer block">
+    <Link to={`/video/${id}`} className="relative aspect-[21/9] rounded-lg overflow-hidden group cursor-pointer block">
       <img
         src={thumbnail}
         alt={title}
@@ -45,4 +47,3 @@ const FeaturedVideo = ({
 };
 
 export default FeaturedVideo;
-

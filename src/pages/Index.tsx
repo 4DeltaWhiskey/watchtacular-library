@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,6 +96,7 @@ const Index = () => {
     <div className="container mx-auto px-4 py-8 min-h-screen">
       {featuredVideo && (
         <FeaturedVideo
+          id={featuredVideo.id}
           title={featuredVideo.translation[0]?.title || ""}
           description={featuredVideo.translation[0]?.description || ""}
           thumbnail={featuredVideo.thumbnail}

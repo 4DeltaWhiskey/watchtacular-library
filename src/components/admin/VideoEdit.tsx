@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,8 +46,14 @@ export function VideoEdit() {
   const { isLoading } = useQuery({
     queryKey: ["admin-video", id],
     queryFn: async () => {
-      if (isNewVideo) {
+      if (isNewVideo || !id || id === ":id") {
         return null;
+      }
+
+      // Validate UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(id)) {
+        throw new Error("Invalid video ID format");
       }
 
       const { data, error } = await supabase
@@ -94,7 +99,7 @@ export function VideoEdit() {
 
       return data;
     },
-    enabled: !isNewVideo,
+    enabled: !isNewVideo && !!id && id !== ":id",
   });
 
   // Mutation for creating/updating video
@@ -256,6 +261,24 @@ export function VideoEdit() {
 
   if (!isNewVideo && isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!isNewVideo && id === ":id") {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <p className="text-red-500">Invalid video ID</p>
+          <Button
+            variant="ghost"
+            className="mt-4"
+            onClick={() => navigate("/admin")}
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" />
+            Back to Videos
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -12,4 +12,6 @@ export type VideoData = {
   duration: string;
   author: string;
   category_id?: string;
+  title: string;
+  description: string;
 };

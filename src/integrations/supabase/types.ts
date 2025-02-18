@@ -208,6 +208,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_role: {
+        Args: {
+          requesting_user_id: string
+          requested_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
       has_role:
         | {
             Args: {

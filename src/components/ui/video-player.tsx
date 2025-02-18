@@ -1,71 +1,11 @@
 
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Play, Pause, Volume2, Volume1, VolumeX, Maximize2 } from "lucide-react";
+import React, { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-
-const formatTime = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds % 60);
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
-
-const CustomSlider = ({
-  value,
-  onChange,
-  className,
-}: {
-  value: number;
-  onChange: (value: number) => void;
-  className?: string;
-}) => {
-  return (
-    <motion.div
-      className={cn(
-        "relative w-full h-1 bg-white/20 rounded-full cursor-pointer",
-        className
-      )}
-      onClick={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percentage = (x / rect.width) * 100;
-        onChange(Math.min(Math.max(percentage, 0), 100));
-      }}
-    >
-      <motion.div
-        className="absolute top-0 left-0 h-full bg-white rounded-full"
-        style={{ width: `${value}%` }}
-        initial={{ width: 0 }}
-        animate={{ width: `${value}%` }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      />
-    </motion.div>
-  );
-};
-
-const isYouTubeUrl = (url: string): boolean => {
-  const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
-  return youtubeRegex.test(url);
-};
-
-const getYouTubeVideoId = (url: string): string | null => {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
-  return match ? match[1] : null;
-};
-
-const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
-  return (
-    <iframe
-      src={`https://www.youtube.com/embed/${videoId}`}
-      className="w-full h-full"
-      allowFullScreen
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    />
-  );
-};
+import YouTubeEmbed from "./video/youtube-embed";
+import VideoControls from "./video/video-controls";
+import { isYouTubeUrl, getYouTubeVideoId } from "./video/utils";
 
 const VideoPlayer = ({ src }: { src: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -178,110 +118,21 @@ const VideoPlayer = ({ src }: { src: string }) => {
 
       <AnimatePresence>
         {showControls && (
-          <motion.div
-            className="absolute bottom-0 w-full p-4 m-2 bg-[#11111198] backdrop-blur-md rounded-2xl"
-            initial={{ y: 20, opacity: 0, filter: "blur(10px)" }}
-            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-            exit={{ y: 20, opacity: 0, filter: "blur(10px)" }}
-            transition={{ duration: 0.6, ease: "circInOut", type: "spring" }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-white text-sm">
-                {formatTime(currentTime)}
-              </span>
-              <CustomSlider
-                value={progress}
-                onChange={handleSeek}
-                className="flex-1"
-              />
-              <span className="text-white text-sm">{formatTime(duration)}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Button
-                    onClick={togglePlay}
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-[#111111d1] hover:text-white"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5" />
-                    )}
-                  </Button>
-                </motion.div>
-                <div className="flex items-center gap-x-1">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Button
-                      onClick={toggleMute}
-                      variant="ghost"
-                      size="icon"
-                      className="text-white hover:bg-[#111111d1] hover:text-white"
-                    >
-                      {isMuted ? (
-                        <VolumeX className="h-5 w-5" />
-                      ) : volume > 0.5 ? (
-                        <Volume2 className="h-5 w-5" />
-                      ) : (
-                        <Volume1 className="h-5 w-5" />
-                      )}
-                    </Button>
-                  </motion.div>
-
-                  <div className="w-24">
-                    <CustomSlider
-                      value={volume * 100}
-                      onChange={handleVolumeChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {[0.5, 1, 1.5, 2].map((speed) => (
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    key={speed}
-                  >
-                    <Button
-                      onClick={() => setSpeed(speed)}
-                      variant="ghost"
-                      size="icon"
-                      className={cn(
-                        "text-white hover:bg-[#111111d1] hover:text-white",
-                        playbackSpeed === speed && "bg-[#111111d1]"
-                      )}
-                    >
-                      {speed}x
-                    </Button>
-                  </motion.div>
-                ))}
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Button
-                    onClick={toggleFullscreen}
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-[#111111d1] hover:text-white"
-                  >
-                    <Maximize2 className="h-5 w-5" />
-                  </Button>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
+          <VideoControls
+            isPlaying={isPlaying}
+            isMuted={isMuted}
+            volume={volume}
+            progress={progress}
+            currentTime={currentTime}
+            duration={duration}
+            playbackSpeed={playbackSpeed}
+            onPlayPause={togglePlay}
+            onMute={toggleMute}
+            onVolumeChange={handleVolumeChange}
+            onSeek={handleSeek}
+            onSpeedChange={setSpeed}
+            onFullscreen={toggleFullscreen}
+          />
         )}
       </AnimatePresence>
     </motion.div>

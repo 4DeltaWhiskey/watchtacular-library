@@ -11,6 +11,8 @@ import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import Index from "./pages/Index";
 import VideoDetail from "./pages/VideoDetail";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
+import { VideoEdit } from "./components/admin/VideoEdit";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/video/:id" element={<VideoDetail />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/videos/:id/edit" element={<VideoEdit />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

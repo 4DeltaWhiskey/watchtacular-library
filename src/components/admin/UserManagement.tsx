@@ -20,24 +20,23 @@ export function UserManagement() {
   const { data: users, isLoading } = useQuery({
     queryKey: ['app-users'],
     queryFn: async () => {
-      const { data: userRoles, error: rolesError } = await supabase
+      // First get all users from auth.users through our proxy
+      const { data: userData, error: userError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
-      if (rolesError) throw rolesError;
+      if (userError) throw userError;
 
-      const userIds = [...new Set(userRoles.map(role => role.user_id))];
-      
       const usersWithRoles: UserWithRole[] = [];
       
-      for (const role of userRoles) {
-        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(role.user_id);
+      for (const role of userData) {
+        const { data: user, error: userError } = await supabase.auth.admin.getUserById(role.user_id);
         
-        if (!userError && userData.user) {
+        if (!userError && user.user) {
           usersWithRoles.push({
             id: role.user_id,
-            email: userData.user.email,
-            created_at: userData.user.created_at,
+            email: user.user.email,
+            created_at: user.user.created_at,
             role: role.role
           });
         }
@@ -49,14 +48,13 @@ export function UserManagement() {
 
   const handleEmpowerAdmin = async (userId: string) => {
     try {
-      const { data: existingRole } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .single();
+      // First check if user is already admin
+      const { data: isAdmin } = await supabase.rpc(
+        'check_user_role',
+        { user_id: userId, required_role: 'admin' }
+      );
 
-      if (existingRole) {
+      if (isAdmin) {
         toast({
           title: "Info",
           description: "User is already an admin",

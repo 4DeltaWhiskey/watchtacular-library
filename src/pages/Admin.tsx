@@ -1,12 +1,12 @@
 
-import { Settings, Users, Video, UserCheck } from "lucide-react";
+import { Settings, Users, Video } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 type Tab = "users" | "videos" | "settings";
 
@@ -16,11 +16,27 @@ export default function Admin() {
   const queryClient = useQueryClient();
 
   const { data: users, isLoading: usersLoading } = useQuery({
-    queryKey: ['admin-users'],
+    queryKey: ['app-users'],
     queryFn: async () => {
-      const { data, error } = await supabase.auth.admin.listUsers();
-      if (error) throw error;
-      return data.users;
+      // Instead of using admin.listUsers(), we'll query our user_roles table
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select(`
+          user_id,
+          role,
+          users:user_id (
+            email,
+            created_at
+          )
+        `);
+
+      if (rolesError) throw rolesError;
+      return userRoles.map(role => ({
+        id: role.user_id,
+        email: role.users?.email,
+        created_at: role.users?.created_at,
+        role: role.role
+      }));
     },
   });
 
@@ -43,6 +59,22 @@ export default function Admin() {
 
   const handleEmpowerAdmin = async (userId: string) => {
     try {
+      // Check if user is already an admin
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .single();
+
+      if (existingRole) {
+        toast({
+          title: "Info",
+          description: "User is already an admin",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('user_roles')
         .insert({ user_id: userId, role: 'admin' });
@@ -55,11 +87,11 @@ export default function Admin() {
       });
       
       // Refresh users data
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ['app-users'] });
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to empower user as admin",
+        description: error.message || "Failed to empower user as admin",
         variant: "destructive",
       });
     }
@@ -110,14 +142,18 @@ export default function Admin() {
                       <div className="text-sm text-muted-foreground">
                         Created: {new Date(user.created_at).toLocaleDateString()}
                       </div>
+                      <div className="text-sm text-muted-foreground">
+                        Role: {user.role}
+                      </div>
                     </div>
                     <Button 
                       onClick={() => handleEmpowerAdmin(user.id)}
                       variant="outline"
                       size="sm"
+                      disabled={user.role === 'admin'}
                     >
-                      <UserCheck className="mr-2 h-4 w-4" />
-                      Empower as Admin
+                      <Users className="mr-2 h-4 w-4" />
+                      {user.role === 'admin' ? 'Already Admin' : 'Empower as Admin'}
                     </Button>
                   </Card>
                 ))}

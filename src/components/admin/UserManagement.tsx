@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 
 type UserWithRole = {
   user_id: string;
-  email: string | null;
   role: string;
 }
 
@@ -25,27 +24,14 @@ export function UserManagement() {
         throw new Error("Unauthorized");
       }
 
-      // Fetch all roles with user emails using a join
+      // Fetch all roles
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
-        .select(`
-          user_id,
-          role,
-          users:user_id (
-            email
-          )
-        `);
+        .select('user_id, role');
 
       if (rolesError) throw rolesError;
 
-      // Map the data to our expected format
-      const usersWithRoles: UserWithRole[] = roles.map(role => ({
-        user_id: role.user_id,
-        email: role.users?.email,
-        role: role.role
-      }));
-
-      return usersWithRoles;
+      return roles;
     },
     enabled: isAdmin // Only run query if user is admin
   });
@@ -131,7 +117,7 @@ export function UserManagement() {
           {users?.map((user) => (
             <Card key={user.user_id} className="p-4 space-y-4">
               <div>
-                <div className="font-medium">{user.email}</div>
+                <div className="font-medium">User ID: {user.user_id}</div>
                 <div className="text-sm text-muted-foreground">
                   Role: {user.role}
                 </div>

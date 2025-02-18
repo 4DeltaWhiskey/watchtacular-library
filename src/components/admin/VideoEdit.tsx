@@ -41,14 +41,13 @@ export function VideoEdit() {
     ar: { title: "", description: "" },
   });
 
-  const isNewVideo = id === "new";
+  const isNewVideo = !id || id === "new";
 
   // Query for existing video data
   const { isLoading } = useQuery({
     queryKey: ["admin-video", id],
     queryFn: async () => {
-      // Return null for new videos to prevent querying the database
-      if (isNewVideo || !id || id === "new") {
+      if (isNewVideo) {
         return null;
       }
 
@@ -95,16 +94,14 @@ export function VideoEdit() {
 
       return data;
     },
-    enabled: !isNewVideo && id !== undefined && id !== "new",
+    enabled: !isNewVideo,
   });
 
   // Mutation for creating/updating video
   const videoMutation = useMutation({
     mutationFn: async () => {
-      let videoId = id;
-
-      // If it's a new video, create it first
       if (isNewVideo) {
+        // Create new video
         const { data: newVideo, error: videoError } = await supabase
           .from("videos")
           .insert({
@@ -116,37 +113,57 @@ export function VideoEdit() {
           .single();
 
         if (videoError) throw videoError;
-        videoId = newVideo.id;
+
+        // Create translations for the new video
+        const translationPromises = Object.entries(translations).map(([lang, trans]) => {
+          return supabase
+            .from("video_translations")
+            .insert({
+              video_id: newVideo.id,
+              language: lang,
+              title: trans.title,
+              description: trans.description,
+            });
+        });
+
+        const results = await Promise.all(translationPromises);
+        const errors = results.filter((result) => result.error);
+
+        if (errors.length > 0) {
+          throw new Error("Failed to create some translations");
+        }
+
+        return newVideo.id;
       } else {
         // Update existing video
         const { error: videoError } = await supabase
           .from("videos")
           .update(videoData)
-          .eq("id", videoId);
+          .eq("id", id);
 
         if (videoError) throw videoError;
+
+        // Update translations
+        const translationPromises = Object.entries(translations).map(([lang, trans]) => {
+          return supabase
+            .from("video_translations")
+            .upsert({
+              video_id: id,
+              language: lang,
+              title: trans.title,
+              description: trans.description,
+            });
+        });
+
+        const results = await Promise.all(translationPromises);
+        const errors = results.filter((result) => result.error);
+
+        if (errors.length > 0) {
+          throw new Error("Failed to update some translations");
+        }
+
+        return id;
       }
-
-      // Update translations
-      const translationPromises = Object.entries(translations).map(([lang, trans]) => {
-        return supabase
-          .from("video_translations")
-          .upsert({
-            video_id: videoId,
-            language: lang,
-            title: trans.title,
-            description: trans.description,
-          });
-      });
-
-      const results = await Promise.all(translationPromises);
-      const errors = results.filter((result) => result.error);
-
-      if (errors.length > 0) {
-        throw new Error("Failed to update some translations");
-      }
-
-      return videoId;
     },
     onSuccess: (newVideoId) => {
       toast({

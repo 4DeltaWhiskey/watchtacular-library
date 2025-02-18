@@ -2,6 +2,9 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { VideoData } from "@/types/video-edit";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface VideoFormFieldsProps {
   videoData: VideoData;
@@ -10,6 +13,46 @@ interface VideoFormFieldsProps {
 }
 
 export function VideoFormFields({ videoData, categories, onVideoDataChange }: VideoFormFieldsProps) {
+  const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false);
+  const { toast } = useToast();
+
+  const generateThumbnail = async (videoUrl: string) => {
+    if (!videoUrl) return;
+
+    setIsGeneratingThumbnail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-video-thumbnail', {
+        body: { videoUrl },
+      });
+
+      if (error) throw error;
+      if (data.thumbnailUrl) {
+        onVideoDataChange("thumbnail", data.thumbnailUrl);
+        toast({
+          title: "Success",
+          description: "Thumbnail generated successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating thumbnail:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate thumbnail",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingThumbnail(false);
+    }
+  };
+
+  const handleVideoUrlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newUrl = e.target.value;
+    onVideoDataChange("video_url", newUrl);
+    if (newUrl && !videoData.thumbnail) {
+      await generateThumbnail(newUrl);
+    }
+  };
+
   return (
     <div className="grid gap-4">
       <div className="space-y-2">
@@ -19,7 +62,7 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
         <Input
           id="video_url"
           value={videoData.video_url}
-          onChange={(e) => onVideoDataChange("video_url", e.target.value)}
+          onChange={handleVideoUrlChange}
           placeholder="Enter video URL"
           required
         />
@@ -29,13 +72,22 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
         <label htmlFor="thumbnail" className="text-sm font-medium">
           Thumbnail URL
         </label>
-        <Input
-          id="thumbnail"
-          value={videoData.thumbnail}
-          onChange={(e) => onVideoDataChange("thumbnail", e.target.value)}
-          placeholder="Enter thumbnail URL"
-          required
-        />
+        <div className="relative">
+          <Input
+            id="thumbnail"
+            value={videoData.thumbnail}
+            onChange={(e) => onVideoDataChange("thumbnail", e.target.value)}
+            placeholder="Enter thumbnail URL"
+            required
+            className={isGeneratingThumbnail ? "opacity-50" : ""}
+            disabled={isGeneratingThumbnail}
+          />
+          {isGeneratingThumbnail && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+            </div>
+          )}
+        </div>
         {videoData.thumbnail && (
           <img
             src={videoData.thumbnail}

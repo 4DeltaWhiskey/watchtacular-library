@@ -31,26 +31,29 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
       console.log('Function response:', { data, error });
 
       if (error) throw error;
-      if (data?.thumbnailUrl) {
-        console.log('Setting new thumbnail URL:', data.thumbnailUrl);
+      if (data) {
+        console.log('Setting video metadata:', data);
         onVideoDataChange("thumbnail", data.thumbnailUrl);
+        if (data.duration) onVideoDataChange("duration", data.duration);
+        if (data.author) onVideoDataChange("author", data.author);
+        
         toast({
           title: "Success",
-          description: "Thumbnail generated successfully",
+          description: "Video metadata fetched successfully",
         });
       } else {
-        console.log('No thumbnail URL in response');
+        console.log('No data in response');
         toast({
           title: "Error",
-          description: "No thumbnail URL received",
+          description: "No metadata received",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error generating thumbnail:', error);
+      console.error('Error fetching video metadata:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate thumbnail",
+        description: error instanceof Error ? error.message : "Failed to fetch video metadata",
         variant: "destructive",
       });
     } finally {
@@ -63,14 +66,11 @@ export function VideoFormFields({ videoData, categories, onVideoDataChange }: Vi
     console.log('Video URL changed:', newUrl);
     onVideoDataChange("video_url", newUrl);
     
-    if (newUrl && !videoData.thumbnail) {
-      console.log('Triggering thumbnail generation');
+    if (newUrl) {
+      console.log('Triggering metadata fetch');
       await generateThumbnail(newUrl);
     } else {
-      console.log('Skipping thumbnail generation:', { 
-        hasUrl: Boolean(newUrl), 
-        hasThumbnail: Boolean(videoData.thumbnail) 
-      });
+      console.log('Skipping metadata fetch: no URL provided');
     }
   };
 

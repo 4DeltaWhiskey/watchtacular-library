@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Languages } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -184,6 +183,44 @@ export function VideoEdit() {
     },
   });
 
+  const translateMutation = useMutation({
+    mutationFn: async (text: string) => {
+      const { data, error } = await supabase.functions.invoke('translate-text', {
+        body: { text },
+      });
+
+      if (error) throw error;
+      return data.translatedText;
+    },
+  });
+
+  const handleTranslate = async () => {
+    try {
+      // Translate title
+      if (translations.en.title) {
+        const translatedTitle = await translateMutation.mutateAsync(translations.en.title);
+        handleTranslationChange("ar", "title", translatedTitle);
+      }
+
+      // Translate description
+      if (translations.en.description) {
+        const translatedDesc = await translateMutation.mutateAsync(translations.en.description);
+        handleTranslationChange("ar", "description", translatedDesc);
+      }
+
+      toast({
+        title: "Success",
+        description: "Text translated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to translate text",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleVideoDataChange = (field: keyof VideoData, value: string) => {
     setVideoData(prev => ({
       ...prev,
@@ -293,6 +330,19 @@ export function VideoEdit() {
             </div>
 
             <div className="grid gap-6">
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleTranslate}
+                  disabled={!translations.en.title && !translations.en.description}
+                  className="mb-2"
+                >
+                  <Languages className="w-4 h-4 mr-2" />
+                  Auto-translate to Arabic
+                </Button>
+              </div>
+
               <Tabs defaultValue="en">
                 <TabsList>
                   <TabsTrigger value="en">English</TabsTrigger>

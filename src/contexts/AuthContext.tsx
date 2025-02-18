@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
   session: Session | null;
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Get initial session
@@ -27,6 +29,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        toast({
+          title: "Authentication Status",
+          description: `Logged in as ${session.user.email}`,
+        });
         checkAdminStatus(session.user.id);
       }
     });
@@ -38,15 +44,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Auth state changed:", session);
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
+        toast({
+          title: "Authentication Status",
+          description: `Logged in as ${session.user.email}`,
+        });
         checkAdminStatus(session.user.id);
       } else {
+        toast({
+          title: "Authentication Status",
+          description: "Logged out",
+          variant: "destructive",
+        });
         setIsAdmin(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
   const checkAdminStatus = async (userId: string) => {
     try {
@@ -54,18 +70,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
+        .eq("user_id", userId)
         .single();
 
       if (error) {
         console.error("Error checking admin status:", error);
+        toast({
+          title: "Role Check",
+          description: "Unable to verify admin status",
+          variant: "destructive",
+        });
         setIsAdmin(false);
         return;
       }
 
       console.log("Admin check result:", data);
-      setIsAdmin(data?.role === 'admin');
+      const isUserAdmin = data?.role === 'admin';
+      setIsAdmin(isUserAdmin);
+      
+      toast({
+        title: "Role Assignment",
+        description: `User role: ${data?.role || 'none'}`,
+        variant: isUserAdmin ? "default" : "destructive",
+      });
     } catch (error) {
       console.error("Exception checking admin status:", error);
+      toast({
+        title: "Role Check",
+        description: "Error checking admin status",
+        variant: "destructive",
+      });
       setIsAdmin(false);
     }
   };

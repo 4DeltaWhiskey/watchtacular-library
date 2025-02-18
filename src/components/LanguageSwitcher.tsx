@@ -10,7 +10,18 @@ const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="fixed top-4 right-4 z-50 grid grid-cols-2 gap-2">
+    <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+      <Link to="/admin">
+        <Button 
+          variant="outline" 
+          className="bg-background h-10 flex items-center gap-2 px-4 min-w-[120px]"
+        >
+          <Settings className="h-5 w-5 shrink-0" />
+          <span className="truncate">
+            <FormattedMessage id="app.admin" />
+          </span>
+        </Button>
+      </Link>
       <ThemeSwitcher />
       <Button
         variant="outline"
@@ -19,17 +30,6 @@ const LanguageSwitcher = () => {
       >
         {language === 'en' ? 'العربية' : 'English'}
       </Button>
-      <Link to="/admin" className="col-span-2">
-        <Button 
-          variant="outline" 
-          className="bg-background h-10 w-full flex items-center gap-2 px-4"
-        >
-          <Settings className="h-5 w-5 shrink-0" />
-          <span className="truncate">
-            <FormattedMessage id="app.admin" />
-          </span>
-        </Button>
-      </Link>
     </div>
   );
 };

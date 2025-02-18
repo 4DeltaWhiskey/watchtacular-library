@@ -1,74 +1,61 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const extractYouTubeVideoId = (url: string) => {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[7].length === 11) ? match[7] : null;
+};
+
 serve(async (req) => {
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { videoUrl } = await req.json();
+    console.log('Processing video URL:', videoUrl);
 
-    // First, get a description for the thumbnail
-    const descriptionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a video thumbnail designer. Given a video URL, create a brief, clear description for DALL-E to generate an appealing thumbnail image. Focus on key visual elements that would make an engaging thumbnail.'
-          },
-          {
-            role: 'user',
-            content: `Create a thumbnail description for this video: ${videoUrl}`
-          }
-        ],
-      }),
-    });
+    let thumbnailUrl: string;
 
-    const descriptionData = await descriptionResponse.json();
-    const thumbnailDescription = descriptionData.choices[0].message.content;
-
-    // Then, generate the image using DALL-E
-    const imageResponse = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'dall-e-3',
-        prompt: thumbnailDescription + ". Make it suitable for a video thumbnail, with vibrant colors and engaging composition.",
-        n: 1,
-        size: "1024x1024",
-      }),
-    });
-
-    const imageData = await imageResponse.json();
-    const thumbnailUrl = imageData.data[0].url;
+    // Check if it's a YouTube video
+    const youtubeId = extractYouTubeVideoId(videoUrl);
+    if (youtubeId) {
+      // Use YouTube's highest quality thumbnail
+      thumbnailUrl = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+      console.log('Using YouTube thumbnail:', thumbnailUrl);
+    } else {
+      // For non-YouTube videos, use a default thumbnail or implement other video platform handlers
+      console.log('Non-YouTube video URL detected, using fallback thumbnail');
+      thumbnailUrl = 'https://placehold.co/1280x720/darkgray/white?text=Video+Thumbnail';
+    }
 
     return new Response(
       JSON.stringify({ thumbnailUrl }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        } 
+      }
     );
   } catch (error) {
     console.error('Error generating thumbnail:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 500,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 });

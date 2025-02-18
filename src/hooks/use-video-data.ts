@@ -16,6 +16,8 @@ export function useVideoData(id: string | undefined) {
     duration: "",
     author: "",
     category_id: undefined,
+    title: "", // Added initial value for title
+    description: "", // Added initial value for description
   });
   const [translations, setTranslations] = useState<Record<Language, VideoTranslation>>({
     en: { title: "", description: "" },
@@ -60,6 +62,8 @@ export function useVideoData(id: string | undefined) {
         duration: data.duration || "",
         author: data.author || "",
         category_id: data.category_id,
+        title: data.title || "", // Added title
+        description: data.description || "", // Added description
       });
 
       if (data.video_translations) {

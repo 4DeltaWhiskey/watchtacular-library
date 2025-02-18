@@ -22,25 +22,25 @@ const App = () => (
     <ThemeProvider attribute="class" defaultTheme="dark">
       <AuthProvider>
         <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <div className="min-h-screen">
-              <div className="flex items-center justify-end gap-2 p-4">
-                <ThemeSwitcher />
-                <LanguageSwitcher />
-                <LoginButton />
-              </div>
-              <BrowserRouter>
+          <BrowserRouter>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <div className="min-h-screen">
+                <div className="flex items-center justify-end gap-2 p-4">
+                  <ThemeSwitcher />
+                  <LanguageSwitcher />
+                  <LoginButton />
+                </div>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/video/:id" element={<VideoDetail />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </BrowserRouter>
-            </div>
-          </TooltipProvider>
+              </div>
+            </TooltipProvider>
+          </BrowserRouter>
         </LanguageProvider>
       </AuthProvider>
     </ThemeProvider>

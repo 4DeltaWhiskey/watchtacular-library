@@ -4,34 +4,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronLeft, Languages } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-type Language = "en" | "ar";
-
-type VideoTranslation = {
-  title: string;
-  description: string | null;
-};
-
-type VideoData = {
-  video_url: string;
-  thumbnail: string;
-  duration: string;
-  author: string;
-  category_id?: string;
-};
+import { VideoFormFields } from "./VideoFormFields";
+import { VideoTranslations } from "./VideoTranslations";
+import { Language, VideoData, VideoTranslation } from "@/types/video-edit";
 
 export function VideoEdit() {
   const { id } = useParams();
@@ -323,141 +301,17 @@ export function VideoEdit() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <label htmlFor="video_url" className="text-sm font-medium">
-                  Video URL
-                </label>
-                <Input
-                  id="video_url"
-                  value={videoData.video_url}
-                  onChange={(e) => handleVideoDataChange("video_url", e.target.value)}
-                  placeholder="Enter video URL"
-                  required
-                />
-              </div>
+            <VideoFormFields
+              videoData={videoData}
+              categories={categories}
+              onVideoDataChange={handleVideoDataChange}
+            />
 
-              <div className="space-y-2">
-                <label htmlFor="thumbnail" className="text-sm font-medium">
-                  Thumbnail URL
-                </label>
-                <Input
-                  id="thumbnail"
-                  value={videoData.thumbnail}
-                  onChange={(e) => handleVideoDataChange("thumbnail", e.target.value)}
-                  placeholder="Enter thumbnail URL"
-                  required
-                />
-                {videoData.thumbnail && (
-                  <img
-                    src={videoData.thumbnail}
-                    alt="Video thumbnail preview"
-                    className="mt-2 max-w-xs rounded-md"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="duration" className="text-sm font-medium">
-                  Duration
-                </label>
-                <Input
-                  id="duration"
-                  value={videoData.duration}
-                  onChange={(e) => handleVideoDataChange("duration", e.target.value)}
-                  placeholder="e.g., 2:30"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="author" className="text-sm font-medium">
-                  Author
-                </label>
-                <Input
-                  id="author"
-                  value={videoData.author}
-                  onChange={(e) => handleVideoDataChange("author", e.target.value)}
-                  placeholder="Enter author name"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="category" className="text-sm font-medium">
-                  Category
-                </label>
-                <Select
-                  value={videoData.category_id}
-                  onValueChange={(value) => handleVideoDataChange("category_id", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid gap-6">
-              <Tabs defaultValue="en">
-                <div className="flex items-center justify-between mb-2">
-                  <TabsList>
-                    <TabsTrigger value="en">English</TabsTrigger>
-                    <TabsTrigger value="ar">Arabic</TabsTrigger>
-                  </TabsList>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleTranslate}
-                    disabled={!translations.en.title && !translations.en.description}
-                  >
-                    <Languages className="w-4 h-4 mr-2" />
-                    Auto-translate to Arabic
-                  </Button>
-                </div>
-
-                {(["en", "ar"] as const).map((lang) => (
-                  <TabsContent key={lang} value={lang} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor={`title-${lang}`} className="text-sm font-medium">
-                        Title
-                      </label>
-                      <Input
-                        id={`title-${lang}`}
-                        value={translations[lang].title}
-                        onChange={(e) =>
-                          handleTranslationChange(lang, "title", e.target.value)
-                        }
-                        dir={lang === "ar" ? "rtl" : "ltr"}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label htmlFor={`description-${lang}`} className="text-sm font-medium">
-                        Description
-                      </label>
-                      <Textarea
-                        id={`description-${lang}`}
-                        value={translations[lang].description || ""}
-                        onChange={(e) =>
-                          handleTranslationChange(lang, "description", e.target.value)
-                        }
-                        dir={lang === "ar" ? "rtl" : "ltr"}
-                        rows={5}
-                      />
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>
+            <VideoTranslations
+              translations={translations}
+              onTranslationChange={handleTranslationChange}
+              onTranslate={handleTranslate}
+            />
 
             <Button
               type="submit"

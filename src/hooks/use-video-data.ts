@@ -16,8 +16,8 @@ export function useVideoData(id: string | undefined) {
     duration: "",
     author: "",
     category_id: undefined,
-    title: "", // Added initial value for title
-    description: "", // Added initial value for description
+    title: "",
+    description: "",
   });
   const [translations, setTranslations] = useState<Record<Language, VideoTranslation>>({
     en: { title: "", description: "" },
@@ -55,6 +55,11 @@ export function useVideoData(id: string | undefined) {
 
       if (error) throw error;
 
+      // Find English translation to use as default title/description
+      const enTranslation = data.video_translations?.find(
+        (trans: any) => trans.language === "en"
+      );
+
       // Initialize form data with existing data
       setVideoData({
         video_url: data.video_url || "",
@@ -62,8 +67,8 @@ export function useVideoData(id: string | undefined) {
         duration: data.duration || "",
         author: data.author || "",
         category_id: data.category_id,
-        title: data.title || "", // Added title
-        description: data.description || "", // Added description
+        title: enTranslation?.title || "",
+        description: enTranslation?.description || "",
       });
 
       if (data.video_translations) {

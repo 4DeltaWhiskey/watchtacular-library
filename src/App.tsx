@@ -13,7 +13,9 @@ import LoginButton from "./components/LoginButton";
 import Index from "./pages/Index";
 import VideoDetail from "./pages/VideoDetail";
 import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,14 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/video/:id" element={<VideoDetail />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminProtectedRoute>
+                        <Admin />
+                      </AdminProtectedRoute>
+                    }
+                  />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </div>

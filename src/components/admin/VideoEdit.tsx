@@ -92,7 +92,7 @@ export function VideoEdit() {
 
       return data;
     },
-    enabled: !isNewVideo,
+    enabled: !isNewVideo && id !== undefined, // Only run query when editing an existing video
   });
 
   // Mutation for creating/updating video

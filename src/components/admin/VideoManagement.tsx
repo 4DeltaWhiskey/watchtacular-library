@@ -1,9 +1,8 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Edit, Plus, Star, ArrowUpDown } from "lucide-react";
+import { Edit, Plus, Star, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -14,6 +13,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type SortOption = "titleAsc" | "titleDesc" | "viewsAsc" | "viewsDesc" | "dateAsc" | "dateDesc";
 
@@ -22,6 +32,8 @@ export function VideoManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [sortBy, setSortBy] = useState<SortOption>("dateDesc");
+  const [videoToDelete, setVideoToDelete] = useState<string | null>(null);
+  const [showFinalConfirmation, setShowFinalConfirmation] = useState(false);
   
   const { data: videos, isLoading } = useQuery({
     queryKey: ['admin-videos'],
@@ -48,7 +60,6 @@ export function VideoManagement() {
   });
 
   const sortedVideos = videos?.slice().sort((a, b) => {
-    // Always put featured video first
     if (a.is_featured) return -1;
     if (b.is_featured) return 1;
 
@@ -102,6 +113,33 @@ export function VideoManagement() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (videoId: string) => {
+      const { error } = await supabase
+        .from('videos')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', videoId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-videos'] });
+      toast({
+        title: "Success",
+        description: "Video has been deleted",
+      });
+      setVideoToDelete(null);
+      setShowFinalConfirmation(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleEdit = (videoId: string) => {
     navigate(`/admin/videos/${videoId}/edit`);
   };
@@ -112,6 +150,23 @@ export function VideoManagement() {
 
   const handleToggleFeature = (videoId: string) => {
     toggleFeatureMutation.mutate(videoId);
+  };
+
+  const handleDelete = (videoId: string) => {
+    deleteMutation.mutate(videoId);
+  };
+
+  const handleInitialDeleteClick = (videoId: string) => {
+    setVideoToDelete(videoId);
+  };
+
+  const handleFirstConfirm = () => {
+    setShowFinalConfirmation(true);
+  };
+
+  const handleCancel = () => {
+    setVideoToDelete(null);
+    setShowFinalConfirmation(false);
   };
 
   return (
@@ -191,6 +246,50 @@ export function VideoManagement() {
                     <Star className="mr-2 h-4 w-4" />
                     {video.is_featured ? 'Featured' : 'Set Featured'}
                   </Button>
+                  <AlertDialog open={videoToDelete === video.id && !showFinalConfirmation}>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleInitialDeleteClick(video.id)}
+                        className="flex-1"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will delete the video "{video.video_translations?.[0]?.title}". This action requires additional confirmation.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleFirstConfirm}>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <AlertDialog open={videoToDelete === video.id && showFinalConfirmation}>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Final Confirmation Required</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you absolutely sure you want to delete this video? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={() => handleDelete(video.id)}
+                          className="bg-destructive hover:bg-destructive/90"
+                        >
+                          Delete Video
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </Card>

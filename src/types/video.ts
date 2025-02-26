@@ -1,3 +1,4 @@
+
 export type VideoReactionsType = {
   like: { type: 'like'; count: number; active: boolean };
   dislike: { type: 'dislike'; count: number; active: boolean };
@@ -25,6 +26,7 @@ export type Video = {
   category_id?: string;
   created_at: string;
   updated_at: string;
+  deleted_at?: string;
 };
 
 export type VideoTranslation = {

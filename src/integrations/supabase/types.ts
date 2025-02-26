@@ -161,6 +161,7 @@ export type Database = {
           author: string
           category_id: string | null
           created_at: string
+          deleted_at: string | null
           duration: string
           id: string
           is_featured: boolean | null
@@ -174,6 +175,7 @@ export type Database = {
           author: string
           category_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           duration: string
           id?: string
           is_featured?: boolean | null
@@ -187,6 +189,7 @@ export type Database = {
           author?: string
           category_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           duration?: string
           id?: string
           is_featured?: boolean | null

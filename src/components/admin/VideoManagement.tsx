@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -53,7 +54,8 @@ export function VideoManagement() {
               language
             )
           )
-        `);
+        `)
+        .is('deleted_at', null);  // Only fetch non-deleted videos
       if (error) throw error;
       return data;
     },
@@ -117,7 +119,10 @@ export function VideoManagement() {
     mutationFn: async (videoId: string) => {
       const { error } = await supabase
         .from('videos')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({
+          deleted_at: new Date().toISOString(),
+          is_featured: false, // Remove featured status when deleting
+        })
         .eq('id', videoId);
       
       if (error) throw error;

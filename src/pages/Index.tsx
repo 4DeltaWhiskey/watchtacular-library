@@ -58,7 +58,8 @@ const Index = () => {
             description
           )
         `)
-        .eq("translation.language", language);
+        .eq("translation.language", language)
+        .is("deleted_at", null); // Only fetch non-deleted videos
 
       if (activeCategory !== "All") {
         query = query.eq(
